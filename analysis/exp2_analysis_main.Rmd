@@ -1,0 +1,281 @@
+---
+title: 'Experiment 2: Main Analysis'
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    toc: true
+    toc_depth: 3
+  github_document:
+    toc: true
+    toc_depth: 3
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r include=FALSE}
+library(magrittr)
+library(tidyr)
+library(dplyr)
+options(dplyr.summarise.inform = FALSE)
+library(lme4)
+library(lmerTest)
+library(broom.mixed)
+library(knitr)
+```
+
+# Setup
+
+Variable names:
+
+-   Experiment: exp2
+
+-   Type
+
+    -   d = data
+    -   m = model
+    -   est = log odds estimate from model
+    -   OR = odds ratio converted from est
+
+-   Analysis
+
+    -   count =sums of response types
+    -   cond = effect of Condition (Last vs First+Full)
+    -   nameGender = effects of Condition (First vs Full) and Name
+        Gender Rating
+
+-   Subset
+
+    -   all = including *other* responses
+
+    -   noOther = excluding *other* responses
+
+    -   FF = First and Full Name conditions only
+
+    -   Last = Last Name condition only
+
+Load data and select columns used in model. See data/exp2_data_about.txt
+for more details.
+
+```{r}
+exp2_d <- read.csv("../data/exp2_data.csv", 
+                   stringsAsFactors=TRUE) %>%
+  rename("Participant"="SubjID", "Item"="NameShown") %>%
+  select(Participant, SubjGenderMale, 
+         Condition, GenderRating, 
+         Item, Male, Female, Other)
+str(exp2_d)
+```
+
+Center gender rating for names: Original scale from 1 to 7, with 1 as
+most masculine and 7 as most feminine. Mean-centered with higher still
+as more feminine.
+
+```{r}
+exp2_d %<>% mutate(GenderRatingCentered=
+            scale(GenderRating, scale=FALSE))
+```
+
+Set contrasts for name conditions.
+
+```{r}
+contrasts(exp2_d$Condition) = cbind(
+  "last vs first/full"=c(.33,.33,-0.66), 
+  "first vs full"=c(-.5,.5,0))
+contrasts(exp2_d$Condition)
+```
+
+Subset for gender rating effects (First and Full conditions only).
+
+```{r}
+exp2_d_FF <- exp2_d %>% filter(Condition!="last") 
+exp2_d_FF$Condition <- droplevels(exp2_d_FF$Condition)
+contrasts(exp2_d_FF$Condition) = cbind(
+  "first vs full"=c(-.5,.5)) #add contrast back
+contrasts(exp2_d_FF$Condition)
+```
+
+# Data Summary
+
+Responses by condition.
+
+```{r}
+exp2_d %<>% mutate(ResponseAll=case_when(
+  Male==1 ~ "Male",
+  Female==1 ~ "Female", 
+  Other==1 ~ "Other"))
+
+exp2_d_count <- exp2_d %>% 
+  group_by(Condition, ResponseAll) %>%
+  summarise(n=n()) %>%
+  pivot_wider(names_from=ResponseAll,
+              values_from=n) %>%
+  mutate(Female_MaleOther = Female / (Male+Other),
+         Female_Male = Female / Male)
+
+kable(exp2_d_count, digits=3)
+```
+
+-   First name condition has most *female* responses
+-   Full name condition has second-most *female* responses
+-   Last name condition has fewest *female* responses
+
+# Model 1: Condition
+
+Effect of Condition (first name, last name, full name) on likelihood of
+a *female* response, as opposed to a *male* or *other* response.
+Participant and Item are included as random intercepts, with items
+defined as the unique first, last and first + last name combinations.
+Because the condition manipulations were fully between-subject and
+between-item, fitting a random slope model was not possible.
+
+```{r}
+exp2_m_cond <- glmer(
+  Female ~ Condition + (1|Participant) + (1|Item), 
+  data=exp2_d, family=binomial)
+summary(exp2_m_cond)
+```
+
+-   Less likely overall to recall character as female.
+
+-   Less likely to recall character as female in the Last Name condition
+    as compared to the First and Full Name conditions.
+
+## Odds Ratios: Intercept
+
+```{r}
+exp2_est_cond_intercept <- exp2_m_cond %>% 
+  tidy() %>%
+  filter(term=="(Intercept)") %>%
+  select(estimate) %>% as.numeric()
+
+exp(exp2_est_cond_intercept)
+exp(-exp2_est_cond_intercept)
+
+#Save this for the table comparing all 4 experiments
+exp2_OR_all_I <- exp(exp2_est_cond_intercept) %>% round(2)
+```
+
+0.41x less likely to recall as female overall (or: 2.41x more likely to
+recall as male/other overall), p\<.001
+
+## Odds Ratios: Last vs First+Full
+
+```{r}
+exp2_est_cond_LFF <- exp2_m_cond %>% 
+  tidy() %>%
+  filter(term=="Conditionlast vs first/full") %>%
+  select(estimate) %>% as.numeric()
+exp(exp2_est_cond_LFF)
+
+#Save this for the table comparing all 4 experiments
+exp2_OR_all_LFF <- exp(exp2_est_cond_LFF) %>% round(2)
+```
+
+7.29x more likely to recall as female in First + Full compared to Last
+(or: 7.29 more likely to recall as male in Last than in First + Full),
+p\<.001
+
+## Odds Ratios: Last Only
+
+Dummy code with Last Name as 0, so that intercept is the Last Name
+condition only.
+
+```{r}
+exp2_d %<>% mutate(Condition_Last=case_when(
+  Condition=="first" ~ 1,
+  Condition=="full" ~ 1,
+  Condition=="last" ~ 0))
+exp2_d$Condition_Last %<>% as.factor()
+```
+
+```{r}
+exp2_m_L <- glmer(
+  Female ~ Condition_Last + (1|Participant) + (1|Item), 
+  data=exp2_d, family=binomial)
+summary(exp2_m_L)
+```
+
+```{r}
+exp2_est_L <- exp2_m_L %>%
+  tidy() %>%
+  filter(term=="(Intercept)") %>%
+  select(estimate) %>% as.numeric()
+
+exp(exp2_est_L)
+exp(-exp2_est_L)
+
+#Save this for the table comparing all 4 experiments
+exp2_OR_all_L <- exp(exp2_est_L) %>% 
+  round(2)
+```
+
+0.11x times less likely to recall as female in the Last Name condition
+(or: 8.94x more likely to recall as male in the Last Name condition),
+p\<.001
+
+## Odds Ratios: First and Full Only
+
+Dummy code with First and Full Name as 0, so that intercept is average
+for these two conditions.
+
+```{r}
+exp2_d %<>% mutate(Condition_FF=case_when(
+  Condition=="first" ~ 0,
+  Condition=="full" ~ 0,
+  Condition=="last" ~ 1))
+exp2_d$Condition_FF %<>% as.factor()
+```
+
+```{r}
+exp2_m_FF <- glmer(
+  Female ~ Condition_FF + (1|Participant) + (1|Item), 
+  data=exp2_d, family=binomial)
+summary(exp2_m_FF)
+```
+
+```{r}
+exp2_est_FF <- exp2_m_FF %>%
+  tidy() %>%
+  filter(term=="(Intercept)") %>%
+  select(estimate) %>% as.numeric()
+
+exp(exp2_est_FF)
+exp(-exp2_est_FF)
+
+#Save this for the table comparing all 4 experiments
+exp2_OR_all_FF <- exp(exp2_est_FF) %>% 
+  round(2)
+```
+
+0.75x times less likely to recall characters as female in the First and
+Full Name conditions (or: 1.32x more likely to use recall characters as
+male in the First and Full Name conditions), p=.07
+
+# Model 2: Condition \* Name Gender
+
+Effects of Condition (first name, full name) and the first name's Gender
+Rating (centered, positive=more feminine) on the likelihood of a
+*female* response, as opposed to a *male* or *other* response. In
+Experiment 2, the Last Name condition does not include any instances of
+the gendered first name, so it is not included here. Participant and
+Item are again included as random intercepts.
+
+```{r}
+exp2_m_nameGender <- glmer(
+  Female ~ Condition * GenderRatingCentered + 
+    (1|Participant) + (1|Item), 
+  data=exp2_d_FF, family=binomial)
+summary(exp2_m_nameGender)
+```
+
+-   Less likely overall to recall character as female in the First and
+    Full Name conditions.
+
+-   Somewhat more likely to recall the character as female in the First
+    Name condition as compared to the Full Name condition (trending).
+
+-   More likely to recall character as female as first name becomes more
+    feminine.
+
+-   No interaction between name condition and first name gender rating.
