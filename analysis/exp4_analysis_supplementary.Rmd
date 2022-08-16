@@ -1,6 +1,5 @@
 ---
 title: 'Experiment 4: Supplementary Analyses'
-author: "Bethany Gardner"
 date: "`r Sys.Date()`"
 output: 
   pdf_document:
@@ -61,10 +60,10 @@ Load data and select columns used in model. See data/exp4_data_about.txt
 for more details.
 
 ```{r}
-exp4_d <- read.csv("../data/exp4_data_original.csv", 
+exp4_d <- read.csv("../data/exp4_data.csv", 
                    stringsAsFactors=TRUE) %>%
   rename("Participant"="SubjID", "Item"="Name") %>%
-  select(Participant, Condition, SubjGender, 
+  select(Participant, Condition, SubjGenderMale, 
          GenderRating, Item, Male, Female, Other)
 str(exp4_d)
 ```
@@ -271,34 +270,26 @@ non-male participants.
 Participants entered their gender in a free-response box.
 
 ```{r}
-exp4_d %>% group_by(SubjGender) %>% 
+exp4_d %>% group_by(SubjGenderMale) %>% 
   summarise(total=n_distinct(Participant)) %>% kable()
 ```
 
-For this analysis, we exclude participants who did not respond. Because
-there are not enough participants to create 3 groups, we compare male
-(male, transgender male) to non-male participants (female, non-binary,
-transgender female).
+For this analysis, we exclude participants who did not respond (N=91).
+Because there are not enough participants to create 3 groups, we compare
+male to non-male participants. Male (N=602) and transgender male (N=1)
+are coded as 1, and female (N=555), nonbinary (N=3), and transgender
+female (N=1) are coded as 0.
+
+Summary of responses by condition and participant gender:
 
 ```{r}
 exp4_d_gender <- exp4_d %>% 
-  filter(SubjGender != "N/A") %>%
-  mutate(SubjGenderMale=(ifelse(
-    SubjGender=="man"|
-    SubjGender=="transgender male", 1, 0))) %>%
+  filter(!is.na(SubjGenderMale)) %>%
   mutate(ResponseAll=case_when(
-    Male==1 ~ "Male",
-    Female==1 ~ "Female", 
-    Other==1 ~ "Other"))
+    Male   == 1 ~ "Male",
+    Female == 1 ~ "Female", 
+    Other  == 1 ~ "Other"))
 
-exp4_d_gender %>% group_by(SubjGenderMale) %>% 
-  summarise(total=n_distinct(Participant)) %>%
-  kable()
-```
-
-Summary of responses by condition and participant gender.
-
-```{r}
 exp4_d_gender %>% group_by(SubjGenderMale) %>% 
   summarise(total=n_distinct(Participant)) %>%
   kable()
