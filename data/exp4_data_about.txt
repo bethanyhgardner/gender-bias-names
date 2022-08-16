@@ -1,0 +1,55 @@
+The Experiment 4 data (memory with journalism prompts) is structured as follows:
+
+'data.frame':	8771 obs. of  13 variables:
+
+ $ Condition   : Factor w/ 3 levels "first","last",..: 1 1 1 1 1 1 1 1 1 1 ...
+	Three between-subjects conditions: first name, last name, full name.
+
+ $ List        : Factor w/ 9 levels "1A","1B","1C",..: 3 3 3 3 3 3 3 8 8 8 ...
+	9 lists to counterbalance which 7 of the 21 names participants saw, and the combinations 
+  	of names and prompts to balance possible gender associations of the prompts.
+
+ $ GenderRating: num  6.24 2.61 6.82 5.34 1.28 4.39 3.87 5.22 1.24 5.86 ...
+	Gender rating of the first names (from pilot data), with 1 as very masculine and 
+   	7 as very feminine. 
+
+ $ Name        : Factor w/ 63 levels "Ashley Cook",..: 1 18 21 22 25 28 50 5 7 15 ...
+	Name shown. In all conditions, the first instance of the name was a full name, then
+   	the other three instances varied according to condition. There are 21 first names,
+   	21 last names, and 3 combinations into full names.
+
+ $ Prompt      : Factor w/ 7 levels "album","animals",..: 3 4 1 2 6 7 5 3 2 5 ...
+	7 story prompts.
+
+ $ Male        : num  0 1 0 0 1 1 1 1 1 0 ...
+	1 if participant answered "male", 0 if not.
+
+ $ Female      : num  1 0 1 1 0 0 0 0 0 1 ...
+	1 if participant answered "female", 0 if not.
+
+ $ Other       : num  0 0 0 0 0 0 0 0 0 0 ...
+	1 if answer was something other than "male" or "female" (i.e. "I don't know", "I don't 
+  	remember"), 0 if not.
+
+ $ Likeable    : int  2 1 3 2 4 3 3 3 2 4 ...
+	Rating of the character as likeable, with 1 as most and 7 as least.
+
+ $ Accomplished: int  1 2 1 4 2 2 2 5 3 3 ...
+	Rating of the character as accomplished, with 1 as most and 7 as least.
+
+ $ Important   : int  2 1 5 5 1 4 3 3 2 2 ...
+	Rating of the character as important, with 1 as most and 7 as least.
+
+ $ SubjID      : Factor w/ 1253 levels "Exp4_P1","Exp4_P10",..:
+ 	Participant ID.
+
+ $ SubjGenderMale: int  1 1 1 1 1 1 1 1 1 1 ...
+ 	Participants wrote their gender in a free-response box. NA values (N=91) are participants who did not 
+	provide a gender, generally misreading the question and writing their age instead. This is the variable
+	used in the supplementary analysis, with male (N=602) and transgender male (N=1) participants coded as 1 
+	and female (N=555), transgender female (N=1), and nonbinary (N=3) participants are coded as 0. The original 
+	responses are not included in the public dataset, to preserve the privacy of gender minority participants.
+
+Participant age, education level, and race/ethnicity were also collected but are not included in the 
+public dataset.
+

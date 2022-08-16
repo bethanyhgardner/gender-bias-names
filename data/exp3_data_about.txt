@@ -1,0 +1,56 @@
+The Experiment 3 (production with news article prompts) data is structured as follows:
+
+'data.frame':	8904 obs. of  17 variables:
+
+ $ Condition   : Factor w/ 3 levels "first","last",..: 1 1 1 1 1 1 1 1 1 1 ...
+	Three between-subjects conditions: first name, last name, full name.
+
+ $ List        : Factor w/ 9 levels "1A","1B","1C",..: 5 5 5 5 5 5 5 9 9 9 ...
+	9 lists to counterbalance which 7 of the 21 names participants saw, and the combinations 
+	of names and prompts to balance possible gender associations of the prompts.
+
+ $ GenderRating: num  5.22 1.24 5.86 3.75 6.78 4.34 2.41 6.24 2.61 6.82 ...
+	Gender rating of the first names (from pilot data), with 1 as very masculine and 
+	7 as very feminine. 
+
+ $ Name        : Factor w/ 63 levels "Ashley Cook",..: 6 9 13 43 47 52 62 2 16 20 ...
+	Name shown. In all conditions, the first instance of the name was a full name, then
+	the other three instances varied according to condition. There are 21 first names,
+	21 last names, and 3 combinations into full names.
+
+ $ Prompt      : Factor w/ 7 levels "album","animals",..: 2 7 4 6 1 3 5 1 2 6 ...
+	7 story prompts.
+
+ $ He          : int  0 1 0 0 0 0 1 0 1 0 ...
+	1 if response uses he/him pronouns (not always as the first word), 0 if not.
+
+ $ She         : int  0 0 1 0 1 1 0 0 0 1 ...
+	1 if response uses she/her pronouns, 0 if not.
+
+ $ Other       : int  1 0 0 1 0 0 0 1 0 0 ...
+	1 if the response does not use he/him or she/her pronouns.
+
+ $ Response    : Factor w/ 8877 levels " A new study shows that the field suffers from a reproducibility problem. so its the Brain discussed about it",..: 2536 623 1727 237 2130 1979 678 134 225 1847 ...
+	Full response text. 
+
+ $ Likeable    : int  2 2 2 2 2 1 2 2 2 1 ...
+ 	Rating of the character as likeable, with 1 as most and 7 as least.
+
+ $ Accomplished: int  2 1 1 2 1 1 2 2 3 1 ...
+	Rating of the character as accomplished, with 1 as most and 7 as least.
+
+ $ Important   : int  2 1 2 2 1 1 2 2 2 1 ...
+	Rating of the character ias important, with 1 as most and 7 as least.
+ 
+ $ SubjID : Factor w/ 1272 levels "Exp3_P1","Exp3_P10"
+	Participant ID
+
+ $ SubjGender  : SubjGenderMale: int  1 1 1 1 1 1 1 0 0 0
+	Participants wrote their gender in a free-response box. NA values (N=116) are participants who did not 
+	provide a gender, generally misreading the question and writing their age instead. This is the variable
+	used in the supplementary analysis, with male participants (N=514) coded as 1 and female (N=638), 
+	nonbinary (N=2), agender (N=1), and asexual (N=1) participants are coded as 0. The original responses are not 
+	included in the public dataset, to preserve the privacy of gender minority participants.
+ 
+Participant age, education level, and race/ethnicity were also collected but are not included in the 
+public dataset.
