@@ -1,6 +1,6 @@
 Norming Data
 ================
-3/30/2022
+2023-02-07
 
 For the norming study, 51 participants on MTurk rated 92 first names on
 a scale from 1 being “very masculine” to 7 being “very feminine.” The
@@ -179,42 +179,22 @@ birth.
 > 1000 names* \[Data Set\]. United States Social Security
 > Administration. <https://www.ssa.gov/oact/babynames/limits.html>
 
-The norming study is on a scale from 1-7, and the census scale is
-probability 0-1. To try to compare this, I first subtracted 1 from the
-norming data, to put it on a scale from 0-6. Then, I divided by six, to
-put it on a scale from 0-1.
-
 ``` r
 census <- read.csv("../data/exp0_data_census.csv")
 
-names_used <- left_join(names_used, census, by="Name") %>%
-  mutate(MeanGenderRating06=MeanGenderRating-1,
-  Norming_ProbFemale = MeanGenderRating06 / 6,
-  Diff_ProbFemale = Census_ProbFemale - Norming_ProbFemale)
+names_used <- left_join(names_used, census, by="Name")
 ```
-
-A few of the androgynous names have bigger discrepancies, likely because
-their gender associations have been changing over time. Overall, though,
-the mean difference is close to 0, and not all of the differences
-involve the norming data over-estimating the masculinity of a name.
-
-``` r
-summary(names_used$Diff_ProbFemale)
-```
-
-    ##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-    ## -0.302257 -0.054896  0.027306 -0.003562  0.094850  0.202474
 
 Calculate the correlation:
 
 ``` r
-cor.test(names_used$Norming_ProbFemale, names_used$Census_ProbFemale)
+cor.test(names_used$MeanGenderRating, names_used$Census_ProbFemale)
 ```
 
     ## 
     ##  Pearson's product-moment correlation
     ## 
-    ## data:  names_used$Norming_ProbFemale and names_used$Census_ProbFemale
+    ## data:  names_used$MeanGenderRating and names_used$Census_ProbFemale
     ## t = 10.118, df = 19, p-value = 4.359e-09
     ## alternative hypothesis: true correlation is not equal to 0
     ## 95 percent confidence interval:
@@ -223,24 +203,35 @@ cor.test(names_used$Norming_ProbFemale, names_used$Census_ProbFemale)
     ##       cor 
     ## 0.9183935
 
+A few of the androgynous names have bigger discrepancies, likely because
+their gender associations have been changing over time. Overall, though,
+the mean difference is close to 0, and not all of the differences
+involve the norming data over-estimating the masculinity of a name.
+
 And visualize it:
 
 ``` r
-plot_correlation <- ggplot(names_used, aes(x=Norming_ProbFemale, y=Census_ProbFemale,
-                          color=Name, label=Name)) +
-  geom_point(size=2.5, show.legend=FALSE) +
-  geom_smooth(method=lm, color="darkgrey", fill="darkgrey", 
-              se=FALSE, show.legend=FALSE) +
-  geom_text_repel(show.legend=FALSE) +
-  coord_cartesian(xlim=c(-.05,1.05), ylim=c(-.05, 1.05)) +
+plot_correlation <- ggplot(names_used,
+  aes(x = MeanGenderRating, y = Census_ProbFemale,
+      color = Name, label = Name)) +
+  geom_point(size = 2.5) +
+  geom_text_repel(min.segment.length = 2, force = 5) +
+  annotate(geom = "text", label = "italic(r) == 0.92", parse = TRUE,
+           x = 6, y = 0.20, size = 5) +
+  scale_x_continuous(n.breaks = 7) +
+  scale_color_manual(values = pals::ocean.phase(21)) +
+  guides(color = guide_none()) +
   theme_classic() +
-  theme(text=element_text(size=16)) +
-  labs(title="Norming Study", 
-       x="Proportion Feminine in Norming Data", 
-       y="Proportion AFAB in Census Data")
+  theme(text = element_text(size = 16)) +
+  labs(title = "Norming Study", 
+       x = "Very Masculine – Very Feminine", 
+       y = "Proportion AFAB in Census Data")
 plot_correlation
 ```
 
-    ## `geom_smooth()` using formula 'y ~ x'
+![](exp0_analysis_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
-![](exp0_analysis_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+``` r
+ggsave(plot_correlation, path = "../plots", filename = "norming-names.png",
+       width = 5, height = 5, units = "in", device = "png")
+```
