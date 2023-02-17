@@ -116,7 +116,7 @@ exp4_m_lik <- buildmer(
   formula=(Female ~ Condition * GenderRatingCentered * 
            LikeableCentered + (1|Participant) + (1|Item)),
   data=exp4_d, family=binomial, 
-  direction=c("order"), quiet=TRUE)
+  buildmerControl(direction="order", quiet=TRUE))
 
 summary(exp4_m_lik)
 ```
@@ -151,7 +151,7 @@ exp4_m_acc <- buildmer(
   formula=(Female ~ Condition * GenderRatingCentered * 
     AccomplishedCentered + (1|Participant) + (1|Item)),
   data=exp4_d, family=binomial, 
-  direction=c("order"), quiet=TRUE)
+  buildmerControl(direction="order", quiet=TRUE))
 
 summary(exp4_m_acc)
 ```
@@ -186,7 +186,7 @@ exp4_m_imp <- buildmer(
   formula=(Female ~ Condition * GenderRatingCentered * 
            ImportantCentered + (1|Participant) + (1|Item)),
   data=exp4_d, family=binomial, 
-  direction=c("order"), quiet=TRUE)
+ buildmerControl(direction="order", quiet=TRUE))
 
 summary(exp4_m_imp)
 ```

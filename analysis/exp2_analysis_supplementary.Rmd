@@ -424,11 +424,11 @@ does not include any instances of the gendered first name, so it is not
 included here.
 
 ```{r}
-exp2_m_nameGender_gender <- buildmer(formula=
-            (Female ~ Condition * GenderRatingCentered * SubjGenderMale + 
-            (1|Participant) + (1|Item)), 
-            data=exp2_d_FF_gender, family=binomial, 
-            direction=c("order"), quiet=TRUE)
+exp2_m_nameGender_gender <- buildmer(
+  formula = Female ~ Condition * GenderRatingCentered * SubjGenderMale + 
+            (1|Participant) + (1|Item), 
+  data = exp2_d_FF_gender, family = binomial, 
+  buildmerControl(direction = "order", quiet = TRUE))
 summary(exp2_m_nameGender_gender)
 ```
 

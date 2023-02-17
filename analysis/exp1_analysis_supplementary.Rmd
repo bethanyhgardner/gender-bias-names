@@ -386,11 +386,11 @@ included here. The model with random intercepts does not converge with
 glmer, but does when using buildmer to find the maximal model (?).
 
 ```{r}
-exp1_m_nameGender_gender <- buildmer(formula=
-            (She ~ Condition * GenderRatingCentered * SubjGenderMale + 
-            (1|Participant) + (1|Item)), 
-            data=exp1_d_FF_gender, family=binomial, 
-            direction=c("order"), quiet=TRUE)
+exp1_m_nameGender_gender <- buildmer(
+  formula = She ~ Condition * GenderRatingCentered * SubjGenderMale + 
+            (1|Participant) + (1|Item), 
+  data = exp1_d_FF_gender, family = binomial, 
+  buildmerControl(direction = c("order"), quiet = TRUE))
 summary(exp1_m_nameGender_gender)
 ```
 

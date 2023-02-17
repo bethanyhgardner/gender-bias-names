@@ -1,59 +1,60 @@
 Experiment 4: Supplementary Analyses
 ================
-2022-08-16
+2023-02-07
 
--   <a href="#setup" id="toc-setup">Setup</a>
--   <a href="#without-other-responses"
-    id="toc-without-other-responses">Without <em>Other</em> Responses</a>
-    -   <a href="#odds-ratios-intercept" id="toc-odds-ratios-intercept">Odds
-        Ratios: Intercept</a>
-    -   <a href="#odds-ratios-last-vs-firstfull"
-        id="toc-odds-ratios-last-vs-firstfull">Odds Ratios: Last vs
-        First+Full</a>
-    -   <a href="#odds-ratios-last-only" id="toc-odds-ratios-last-only">Odds
-        Ratios: Last Only</a>
-    -   <a href="#odds-ratios-first-and-full-only"
-        id="toc-odds-ratios-first-and-full-only">Odds Ratios: First and Full
-        Only</a>
--   <a href="#quadratic-name-gender-rating"
-    id="toc-quadratic-name-gender-rating">Quadratic Name Gender Rating</a>
--   <a href="#participant-gender" id="toc-participant-gender">Participant
-    Gender</a>
-    -   <a href="#setupdata-summary" id="toc-setupdata-summary">Setup/Data
-        Summary</a>
-    -   <a href="#model-condition--name-gender--participant-gender"
-        id="toc-model-condition--name-gender--participant-gender">Model:
-        Condition * Name Gender * Participant Gender</a>
+- <a href="#setup" id="toc-setup">Setup</a>
+- <a href="#without-other-responses"
+  id="toc-without-other-responses">Without <em>Other</em> Responses</a>
+  - <a href="#odds-ratios-intercept" id="toc-odds-ratios-intercept">Odds
+    Ratios: Intercept</a>
+  - <a href="#odds-ratios-last-vs-firstfull"
+    id="toc-odds-ratios-last-vs-firstfull">Odds Ratios: Last vs
+    First+Full</a>
+  - <a href="#odds-ratios-last-only" id="toc-odds-ratios-last-only">Odds
+    Ratios: Last Only</a>
+  - <a href="#odds-ratios-first-and-full-only"
+    id="toc-odds-ratios-first-and-full-only">Odds Ratios: First and Full
+    Only</a>
+- <a href="#quadratic-name-gender-rating"
+  id="toc-quadratic-name-gender-rating">Quadratic Name Gender Rating</a>
+- <a href="#participant-gender" id="toc-participant-gender">Participant
+  Gender</a>
+  - <a href="#setupdata-summary" id="toc-setupdata-summary">Setup/Data
+    Summary</a>
+  - <a href="#model-condition--name-gender--participant-gender"
+    id="toc-model-condition--name-gender--participant-gender">Model:
+    Condition * Name Gender * Participant Gender</a>
 
 # Setup
 
--   Variable names:
+- Variable names:
 
-    -   Experiment: exp4
+  - Experiment: exp4
 
-    -   Type
+  - Type
 
-        -   d = data
-        -   m = model
-        -   est = log odds estimate from model
-        -   OR = odds ratio converted from est
+    - d = data
+    - m = model
+    - est = log odds estimate from model
+    - OR = odds ratio converted from est
 
-    -   Analysis
+  - Analysis
 
-        -   count =sums of response types
-        -   cond = effect of Condition (Last vs First+Full)
-        -   nameGender = effects of Condition (First vs Full) and Name
-            Gender Rating
+    - count =sums of response types
+    - cond = effect of Condition (Last vs First+Full)
+    - nameGender = effects of Condition (First vs Full) and Name Gender
+      Rating
+    - recentered = center name gender rating by scale (at 4)
 
-    -   Subset
+  - Subset
 
-        -   all = including *other* responses
+    - all = including *other* responses
 
-        -   noOther = excluding *other* responses
+    - noOther = excluding *other* responses
 
-        -   FF = First and Full Name conditions only
+    - FF = First and Full Name conditions only
 
-        -   Last = Last Name condition only
+    - Last = Last Name condition only
 
 Load data and select columns used in model. See data/exp4_data_about.txt
 for more details.
@@ -162,11 +163,11 @@ summary(exp4_m_noOther)
     ## 
     ## Fixed effects:
     ##                                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                     -0.16411    0.08195  -2.002   0.0452 *  
+    ## (Intercept)                     -0.16411    0.08196  -2.002   0.0452 *  
     ## Condition1                       0.13514    0.05783   2.337   0.0194 *  
     ## Condition2                       0.11302    0.06837   1.653   0.0983 .  
     ## GenderRatingCentered             0.76972    0.04650  16.554   <2e-16 ***
-    ## Condition1:GenderRatingCentered  0.13700    0.03522   3.890   0.0001 ***
+    ## Condition1:GenderRatingCentered  0.13701    0.03522   3.890   0.0001 ***
     ## Condition2:GenderRatingCentered -0.09189    0.04315  -2.129   0.0332 *  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -181,11 +182,10 @@ summary(exp4_m_noOther)
 
 Compared to the main model:
 
--   Intercept and Condition2:GenderRatingCentered (difference between
-    Last Name and First+Full name conditions) potentially smaller
-    differences
+- Intercept and Condition2:GenderRatingCentered (difference between Last
+  Name and First+Full name conditions) potentially smaller differences
 
--   Condition2 now trending
+- Condition2 now trending
 
 ## Odds Ratios: Intercept
 
@@ -197,13 +197,13 @@ exp4_OR_noOther_I <- exp4_m_noOther %>%
 exp(exp4_OR_noOther_I)
 ```
 
-    ## [1] 0.8486509
+    ## [1] 0.8486503
 
 ``` r
 exp(-exp4_OR_noOther_I)
 ```
 
-    ## [1] 1.178341
+    ## [1] 1.178342
 
 ``` r
 #Save this for the table comparing all 4 experiments
@@ -224,7 +224,7 @@ exp4_est_noOther_LFF <- exp4_m_noOther %>%
 exp(exp4_est_noOther_LFF)
 ```
 
-    ## [1] 1.144701
+    ## [1] 1.144697
 
 ``` r
 #Save this for the table comparing all 4 experiments
@@ -348,12 +348,12 @@ summary(exp4_m_noOther_FF)
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
     ##  Participant (Intercept) 0.04761  0.2182  
-    ##  Item        (Intercept) 2.28035  1.5101  
+    ##  Item        (Intercept) 2.28036  1.5101  
     ## Number of obs: 8509, groups:  Participant, 1232; Item, 63
     ## 
     ## Fixed effects:
     ##               Estimate Std. Error z value Pr(>|z|)   
-    ## (Intercept)   -0.11182    0.19348  -0.578  0.56331   
+    ## (Intercept)   -0.11182    0.19346  -0.578  0.56327   
     ## Condition_FF1 -0.16052    0.05804  -2.766  0.00568 **
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -371,7 +371,7 @@ exp4_est_noOther_FF <- exp4_m_noOther_FF %>%
 exp(exp4_est_noOther_FF)
 ```
 
-    ## [1] 0.894209
+    ## [1] 0.8942089
 
 ``` r
 exp(-exp4_est_noOther_FF)
@@ -403,12 +403,6 @@ exp4_m_nameGenderQuad <- glmer(
   Female ~ Condition*GenderRatingCentered + Condition*GenderRatingSquared +
     (1|Participant) + (1|Item), 
   exp4_d, family="binomial")
-```
-
-    ## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
-    ## Model failed to converge with max|grad| = 0.00243397 (tol = 0.002, component 1)
-
-``` r
 summary(exp4_m_nameGenderQuad)
 ```
 
@@ -425,7 +419,7 @@ summary(exp4_m_nameGenderQuad)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -3.2148 -0.5741 -0.2557  0.5736  5.9909 
+    ## -3.2147 -0.5741 -0.2557  0.5736  5.9910 
     ## 
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
@@ -435,15 +429,15 @@ summary(exp4_m_nameGenderQuad)
     ## 
     ## Fixed effects:
     ##                                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                     -0.36857    0.11558  -3.189 0.001428 ** 
-    ## Condition1                       0.16071    0.08015   2.005 0.044956 *  
-    ## Condition2                      -0.07638    0.09273  -0.824 0.410097    
-    ## GenderRatingCentered             0.77987    0.04638  16.814  < 2e-16 ***
-    ## GenderRatingSquared              0.03432    0.02628   1.306 0.191611    
-    ## Condition1:GenderRatingCentered  0.13227    0.03480   3.800 0.000144 ***
-    ## Condition2:GenderRatingCentered -0.09191    0.04261  -2.157 0.030996 *  
-    ## Condition1:GenderRatingSquared  -0.01424    0.01933  -0.737 0.461257    
-    ## Condition2:GenderRatingSquared   0.05968    0.02351   2.538 0.011137 *  
+    ## (Intercept)                     -0.36856    0.11558  -3.189 0.001429 ** 
+    ## Condition1                       0.16075    0.08016   2.005 0.044922 *  
+    ## Condition2                      -0.07644    0.09273  -0.824 0.409751    
+    ## GenderRatingCentered             0.77986    0.04638  16.814  < 2e-16 ***
+    ## GenderRatingSquared              0.03431    0.02628   1.306 0.191644    
+    ## Condition1:GenderRatingCentered  0.13226    0.03480   3.800 0.000145 ***
+    ## Condition2:GenderRatingCentered -0.09190    0.04261  -2.157 0.031020 *  
+    ## Condition1:GenderRatingSquared  -0.01425    0.01933  -0.737 0.461071    
+    ## Condition2:GenderRatingSquared   0.05969    0.02351   2.539 0.011119 *  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -457,12 +451,10 @@ summary(exp4_m_nameGenderQuad)
     ## Cndtn2:GnRC -0.004 -0.008 -0.154 -0.027  0.029 -0.043              
     ## Cndtn1:GnRS -0.005 -0.636  0.007 -0.003  0.029  0.117  0.056       
     ## Cndtn2:GnRS  0.005  0.006 -0.620  0.034 -0.027  0.058  0.095 -0.045
-    ## optimizer (Nelder_Mead) convergence code: 0 (OK)
-    ## Model failed to converge with max|grad| = 0.00243397 (tol = 0.002, component 1)
 
--   Condition (F v F) \* Quadratic Gender Rating interaction, but n.s.
-    after correction for multiple comparisons, so not making a big deal
-    of it
+- Condition (F v F) \* Quadratic Gender Rating interaction, but n.s.
+  after correction for multiple comparisons, so not making a big deal of
+  it
 
 # Participant Gender
 
@@ -551,41 +543,41 @@ summary(exp4_m_gender)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -3.4044 -0.5729 -0.2630  0.5804  4.8532 
+    ## -3.4045 -0.5729 -0.2630  0.5804  4.8534 
     ## 
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
-    ##  Participant (Intercept) 0.1822   0.4268  
+    ##  Participant (Intercept) 0.1822   0.4269  
     ##  Item        (Intercept) 0.3674   0.6061  
     ## Number of obs: 8134, groups:  Participant, 1162; Item, 63
     ## 
     ## Fixed effects:
     ##                                                    Estimate Std. Error z value
-    ## (Intercept)                                        -0.24985    0.08273  -3.020
-    ## Condition1                                          0.14938    0.06380   2.341
-    ## Condition2                                          0.07758    0.07463   1.040
-    ## GenderRatingCentered                                0.76493    0.04662  16.407
+    ## (Intercept)                                        -0.24986    0.08273  -3.020
+    ## Condition1                                          0.14936    0.06380   2.341
+    ## Condition2                                          0.07757    0.07463   1.039
+    ## GenderRatingCentered                                0.76492    0.04662  16.407
     ## SubjGenderMaleNM_M                                 -0.20190    0.06077  -3.322
-    ## Condition1:GenderRatingCentered                     0.09613    0.03622   2.654
+    ## Condition1:GenderRatingCentered                     0.09614    0.03622   2.654
     ## Condition2:GenderRatingCentered                    -0.09863    0.04345  -2.270
-    ## Condition1:SubjGenderMaleNM_M                      -0.01408    0.12800  -0.110
-    ## Condition2:SubjGenderMaleNM_M                      -0.14462    0.14937  -0.968
-    ## GenderRatingCentered:SubjGenderMaleNM_M            -0.02007    0.03494  -0.574
-    ## Condition1:GenderRatingCentered:SubjGenderMaleNM_M  0.04139    0.07267   0.570
-    ## Condition2:GenderRatingCentered:SubjGenderMaleNM_M -0.05276    0.08694  -0.607
+    ## Condition1:SubjGenderMaleNM_M                      -0.01404    0.12799  -0.110
+    ## Condition2:SubjGenderMaleNM_M                      -0.14467    0.14936  -0.969
+    ## GenderRatingCentered:SubjGenderMaleNM_M            -0.02008    0.03494  -0.575
+    ## Condition1:GenderRatingCentered:SubjGenderMaleNM_M  0.04140    0.07267   0.570
+    ## Condition2:GenderRatingCentered:SubjGenderMaleNM_M -0.05277    0.08694  -0.607
     ##                                                    Pr(>|z|)    
-    ## (Intercept)                                        0.002528 ** 
-    ## Condition1                                         0.019214 *  
-    ## Condition2                                         0.298556    
+    ## (Intercept)                                        0.002526 ** 
+    ## Condition1                                         0.019232 *  
+    ## Condition2                                         0.298617    
     ## GenderRatingCentered                                < 2e-16 ***
-    ## SubjGenderMaleNM_M                                 0.000893 ***
-    ## Condition1:GenderRatingCentered                    0.007961 ** 
-    ## Condition2:GenderRatingCentered                    0.023222 *  
-    ## Condition1:SubjGenderMaleNM_M                      0.912408    
-    ## Condition2:SubjGenderMaleNM_M                      0.332962    
-    ## GenderRatingCentered:SubjGenderMaleNM_M            0.565754    
-    ## Condition1:GenderRatingCentered:SubjGenderMaleNM_M 0.568932    
-    ## Condition2:GenderRatingCentered:SubjGenderMaleNM_M 0.543950    
+    ## SubjGenderMaleNM_M                                 0.000892 ***
+    ## Condition1:GenderRatingCentered                    0.007950 ** 
+    ## Condition2:GenderRatingCentered                    0.023221 *  
+    ## Condition1:SubjGenderMaleNM_M                      0.912633    
+    ## Condition2:SubjGenderMaleNM_M                      0.332749    
+    ## GenderRatingCentered:SubjGenderMaleNM_M            0.565577    
+    ## Condition1:GenderRatingCentered:SubjGenderMaleNM_M 0.568875    
+    ## Condition2:GenderRatingCentered:SubjGenderMaleNM_M 0.543834    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -615,7 +607,7 @@ summary(exp4_m_gender)
     ## C1:GRC:SGMN  0.056        
     ## C2:GRC:SGMN -0.050 -0.034
 
--   Male participants less likely to recall character as female than
-    non-male participants overall.
+- Male participants less likely to recall character as female than
+  non-male participants overall.
 
 -   No other interactions with participant gender significant.

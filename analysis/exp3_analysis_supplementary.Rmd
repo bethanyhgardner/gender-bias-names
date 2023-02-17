@@ -100,7 +100,8 @@ intercepts by item, but not by participant.
 exp3_m_quad <- buildmer(
   She ~ Condition*GenderRatingCentered + Condition*GenderRatingSquared +
     (1|Participant) + (1|Item), 
-  exp3_d, family="binomial", direction=c("order"), quiet=TRUE)
+  data = exp3_d, family = binomial,
+  buildmerControl(direction = "order", quiet = TRUE))
 summary(exp3_m_quad)
 ```
 
@@ -256,10 +257,10 @@ by item and by participant.
 
 ```{r}
 exp3_m_gender  <- buildmer(
-  formula= (She ~ Condition * GenderRatingCentered * SubjGenderMale + 
+  formula = (She ~ Condition * GenderRatingCentered * SubjGenderMale + 
            (1|Participant) + (1|Item)), 
-  data=exp3_d_gender , family=binomial, 
-  direction=c("order"), quiet=TRUE)
+  data = exp3_d_gender, family = binomial,
+  buildmerControl(direction = "order", quiet = TRUE))
 
 summary(exp3_m_gender)
 ```

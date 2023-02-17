@@ -1,70 +1,71 @@
 Experiment 1: Supplementary Analyses
 ================
-2022-08-11
+2023-02-07
 
--   <a href="#setup" id="toc-setup">Setup</a>
--   <a href="#without-other-responses"
-    id="toc-without-other-responses">Without <em>Other</em> Responses</a>
-    -   <a href="#model-1-condition-without-other-responses"
-        id="toc-model-1-condition-without-other-responses">Model 1: Condition
-        without <em>Other</em> Responses</a>
-        -   <a href="#odds-ratios-intercept" id="toc-odds-ratios-intercept">Odds
-            Ratios: Intercept</a>
-        -   <a href="#odds-ratios-last-vs-firstfull"
-            id="toc-odds-ratios-last-vs-firstfull">Odds Ratios: Last vs
-            First+Full</a>
-        -   <a href="#odds-ratios-last-only" id="toc-odds-ratios-last-only">Odds
-            Ratios: Last Only</a>
-        -   <a href="#odds-ratios-first-and-full-only"
-            id="toc-odds-ratios-first-and-full-only">Odds Ratios: First and Full
-            Only</a>
-    -   <a href="#model-2-condition--name-gender-wo-other-responses"
-        id="toc-model-2-condition--name-gender-wo-other-responses">Model 2:
-        Condition * Name Gender w/o <em>Other</em> Responses</a>
--   <a href="#quadratic-name-gender-rating"
-    id="toc-quadratic-name-gender-rating">Quadratic Name Gender Rating</a>
-    -   <a href="#model-3-quadratic" id="toc-model-3-quadratic">Model 3:
-        Quadratic</a>
--   <a href="#participant-gender" id="toc-participant-gender">Participant
-    Gender</a>
-    -   <a href="#setupdata-summary" id="toc-setupdata-summary">Setup/Data
-        Summary</a>
-    -   <a href="#model-4-condition--participant-gender"
-        id="toc-model-4-condition--participant-gender">Model 4: Condition *
-        Participant Gender</a>
-    -   <a href="#model-5-condition--name-gender--participant-gender"
-        id="toc-model-5-condition--name-gender--participant-gender">Model 5:
-        Condition * Name Gender * Participant Gender</a>
+- <a href="#setup" id="toc-setup">Setup</a>
+- <a href="#without-other-responses"
+  id="toc-without-other-responses">Without <em>Other</em> Responses</a>
+  - <a href="#model-1-condition-without-other-responses"
+    id="toc-model-1-condition-without-other-responses">Model 1: Condition
+    without <em>Other</em> Responses</a>
+    - <a href="#odds-ratios-intercept" id="toc-odds-ratios-intercept">Odds
+      Ratios: Intercept</a>
+    - <a href="#odds-ratios-last-vs-firstfull"
+      id="toc-odds-ratios-last-vs-firstfull">Odds Ratios: Last vs
+      First+Full</a>
+    - <a href="#odds-ratios-last-only" id="toc-odds-ratios-last-only">Odds
+      Ratios: Last Only</a>
+    - <a href="#odds-ratios-first-and-full-only"
+      id="toc-odds-ratios-first-and-full-only">Odds Ratios: First and Full
+      Only</a>
+  - <a href="#model-2-condition--name-gender-wo-other-responses"
+    id="toc-model-2-condition--name-gender-wo-other-responses">Model 2:
+    Condition * Name Gender w/o <em>Other</em> Responses</a>
+- <a href="#quadratic-name-gender-rating"
+  id="toc-quadratic-name-gender-rating">Quadratic Name Gender Rating</a>
+  - <a href="#model-3-quadratic" id="toc-model-3-quadratic">Model 3:
+    Quadratic</a>
+- <a href="#participant-gender" id="toc-participant-gender">Participant
+  Gender</a>
+  - <a href="#setupdata-summary" id="toc-setupdata-summary">Setup/Data
+    Summary</a>
+  - <a href="#model-4-condition--participant-gender"
+    id="toc-model-4-condition--participant-gender">Model 4: Condition *
+    Participant Gender</a>
+  - <a href="#model-5-condition--name-gender--participant-gender"
+    id="toc-model-5-condition--name-gender--participant-gender">Model 5:
+    Condition * Name Gender * Participant Gender</a>
 
 # Setup
 
 Variable names:
 
--   Experiment: exp1
+- Experiment: exp1
 
--   Type
+- Type
 
-    -   d = data
-    -   m = model
-    -   est = log odds estimate from model
-    -   OR = odds ratio converted from est
+  - d = data
+  - m = model
+  - est = log odds estimate from model
+  - OR = odds ratio converted from est
 
--   Analysis
+- Analysis
 
-    -   count =sums of response types
-    -   cond = effect of Condition (Last vs First+Full)
-    -   nameGender = effects of Condition (First vs Full) and Name
-        Gender Rating
+  - count =sums of response types
+  - cond = effect of Condition (Last vs First+Full)
+  - nameGender = effects of Condition (First vs Full) and Name Gender
+    Rating
+  - recentered = center name gender rating by scale (at 4)
 
--   Subset
+- Subset
 
-    -   all = including *other* responses
+  - all = including *other* responses
 
-    -   noOther = excluding *other* responses
+  - noOther = excluding *other* responses
 
-    -   FF = First and Full Name conditions only
+  - FF = First and Full Name conditions only
 
-    -   Last = Last Name condition only
+  - Last = Last Name condition only
 
 Load data and select columns used in model. See data/exp1_data_about.txt
 for more details.
@@ -186,9 +187,9 @@ summary(exp1_m_cond_noOther)
     ## 
     ## Fixed effects:
     ##                             Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                  -1.1303     0.3432  -3.293 0.000990 ***
-    ## Conditionlast vs first/full   2.9905     0.7839   3.815 0.000136 ***
-    ## Conditionfirst vs full        0.5548     0.7821   0.709 0.478111    
+    ## (Intercept)                  -1.1304     0.3432  -3.294 0.000988 ***
+    ## Conditionlast vs first/full   2.9905     0.7830   3.819 0.000134 ***
+    ## Conditionfirst vs full        0.5548     0.7823   0.709 0.478192    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -210,13 +211,13 @@ exp1_est_noOther_intercept <- exp1_m_cond_noOther %>%
 exp(exp1_est_noOther_intercept)
 ```
 
-    ## [1] 0.3229237
+    ## [1] 0.3229123
 
 ``` r
 exp(-exp1_est_noOther_intercept)
 ```
 
-    ## [1] 3.096706
+    ## [1] 3.096817
 
 ``` r
 #Save this for the table comparing all 4 experiments
@@ -237,7 +238,7 @@ exp1_est_noOther_LFF <- exp1_m_cond_noOther %>%
 exp(exp1_est_noOther_LFF)
 ```
 
-    ## [1] 19.89528
+    ## [1] 19.89544
 
 ``` r
 #Save this for the table comparing all 4 experiments
@@ -290,8 +291,8 @@ summary(exp1_m_L_noOther)
     ## 
     ## Fixed effects:
     ##                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)      -3.1042     0.6698  -4.635 3.58e-06 ***
-    ## Condition_Last1   3.0923     0.7528   4.108 3.99e-05 ***
+    ## (Intercept)      -3.1042     0.6701  -4.632 3.61e-06 ***
+    ## Condition_Last1   3.0923     0.7530   4.107 4.01e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -308,7 +309,7 @@ exp1_est_L_noOther <- exp1_m_L_noOther %>%
 exp(exp1_est_L_noOther)
 ```
 
-    ## [1] 0.04486107
+    ## [1] 0.04486108
 
 ``` r
 exp(-exp1_est_L_noOther)
@@ -366,8 +367,8 @@ summary(exp1_m_FF_noOther)
     ## 
     ## Fixed effects:
     ##               Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)    -0.0119     0.3434  -0.035    0.972    
-    ## Condition_FF1  -3.0923     0.7526  -4.109 3.98e-05 ***
+    ## (Intercept)    -0.0119     0.3436  -0.035    0.972    
+    ## Condition_FF1  -3.0923     0.7535  -4.104 4.06e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -384,13 +385,13 @@ exp1_est_FF_noOther <- exp1_m_FF_noOther %>%
 exp(exp1_est_FF_noOther)
 ```
 
-    ## [1] 0.9881722
+    ## [1] 0.9881717
 
 ``` r
 exp(-exp1_est_FF_noOther)
 ```
 
-    ## [1] 1.011969
+    ## [1] 1.01197
 
 ``` r
 #Save this for the table comparing all 4 experiments
@@ -443,7 +444,7 @@ summary(exp1_m_nameGender_noOther)
     ##                                             Estimate Std. Error z value
     ## (Intercept)                                 -0.22358    0.12769  -1.751
     ## Conditionfirst vs full                       0.41016    0.25609   1.602
-    ## GenderRatingCentered                         1.74039    0.08444  20.611
+    ## GenderRatingCentered                         1.74039    0.08444  20.612
     ## Conditionfirst vs full:GenderRatingCentered -0.25145    0.16068  -1.565
     ##                                             Pr(>|z|)    
     ## (Intercept)                                    0.080 .  
@@ -499,7 +500,7 @@ summary(exp1_m_nameGenderQuad)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -9.1929 -0.3535 -0.0574  0.3125 14.0581 
+    ## -9.1928 -0.3535 -0.0574  0.3125 14.0580 
     ## 
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
@@ -509,11 +510,11 @@ summary(exp1_m_nameGenderQuad)
     ## 
     ## Fixed effects:
     ##                                             Estimate Std. Error z value
-    ## (Intercept)                                 -0.59972    0.15024  -3.992
-    ## Conditionfirst vs full                       0.38504    0.30016   1.283
-    ## GenderRatingCentered                         1.59658    0.07187  22.214
+    ## (Intercept)                                 -0.59972    0.15023  -3.992
+    ## Conditionfirst vs full                       0.38504    0.30017   1.283
+    ## GenderRatingCentered                         1.59657    0.07187  22.214
     ## GenderRatingSquared                          0.03687    0.03923   0.940
-    ## Conditionfirst vs full:GenderRatingCentered -0.16053    0.13727  -1.169
+    ## Conditionfirst vs full:GenderRatingCentered -0.16052    0.13726  -1.169
     ## Conditionfirst vs full:GenderRatingSquared   0.06049    0.07828   0.773
     ##                                             Pr(>|z|)    
     ## (Intercept)                                 6.55e-05 ***
@@ -655,7 +656,7 @@ summary(exp1_m_cond_gender)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -8.9915 -0.2996 -0.1427  0.2145 10.1264 
+    ## -8.9913 -0.2996 -0.1427  0.2145 10.1263 
     ## 
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
@@ -665,28 +666,28 @@ summary(exp1_m_cond_gender)
     ## 
     ## Fixed effects:
     ##                                                Estimate Std. Error z value
-    ## (Intercept)                                     -1.4242     0.3069  -4.640
-    ## Conditionlast vs first/full                      2.8080     0.6998   4.013
-    ## Conditionfirst vs full                           0.5857     0.6987   0.838
+    ## (Intercept)                                     -1.4241     0.3071  -4.637
+    ## Conditionlast vs first/full                      2.8079     0.7018   4.001
+    ## Conditionfirst vs full                           0.5860     0.6993   0.838
     ## SubjGenderMaleNM_M                              -0.2637     0.1209  -2.182
     ## Conditionlast vs first/full:SubjGenderMaleNM_M   0.3958     0.2700   1.466
-    ## Conditionfirst vs full:SubjGenderMaleNM_M        0.4310     0.2830   1.523
+    ## Conditionfirst vs full:SubjGenderMaleNM_M        0.4309     0.2830   1.522
     ##                                                Pr(>|z|)    
-    ## (Intercept)                                    3.49e-06 ***
-    ## Conditionlast vs first/full                    6.00e-05 ***
-    ## Conditionfirst vs full                           0.4018    
+    ## (Intercept)                                    3.53e-06 ***
+    ## Conditionlast vs first/full                    6.31e-05 ***
+    ## Conditionfirst vs full                           0.4021    
     ## SubjGenderMaleNM_M                               0.0291 *  
-    ## Conditionlast vs first/full:SubjGenderMaleNM_M   0.1426    
-    ## Conditionfirst vs full:SubjGenderMaleNM_M        0.1278    
+    ## Conditionlast vs first/full:SubjGenderMaleNM_M   0.1427    
+    ## Conditionfirst vs full:SubjGenderMaleNM_M        0.1279    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Correlation of Fixed Effects:
     ##             (Intr) Cvfrs/ Cndtvf SGMNM_ Cvf/:S
-    ## Cndtnvfrst/ -0.180                            
-    ## Cndtnfrstvf -0.360 -0.238                     
+    ## Cndtnvfrst/ -0.181                            
+    ## Cndtnfrstvf -0.360 -0.239                     
     ## SbjGndMNM_M -0.014 -0.006 -0.004              
-    ## Cvf/:SGMNM_ -0.005 -0.009 -0.003 -0.117       
+    ## Cvf/:SGMNM_ -0.006 -0.009 -0.003 -0.117       
     ## Cvf:SGMNM_M -0.005 -0.002 -0.020 -0.008 -0.005
 
 Male participants are less likely to respond *she* overall than non-male
@@ -704,11 +705,11 @@ included here. The model with random intercepts does not converge with
 glmer, but does when using buildmer to find the maximal model (?).
 
 ``` r
-exp1_m_nameGender_gender <- buildmer(formula=
-            (She ~ Condition * GenderRatingCentered * SubjGenderMale + 
-            (1|Participant) + (1|Item)), 
-            data=exp1_d_FF_gender, family=binomial, 
-            direction=c("order"), quiet=TRUE)
+exp1_m_nameGender_gender <- buildmer(
+  formula = She ~ Condition * GenderRatingCentered * SubjGenderMale + 
+            (1|Participant) + (1|Item), 
+  data = exp1_d_FF_gender, family = binomial, 
+  buildmerControl(direction = c("order"), quiet = TRUE))
 summary(exp1_m_nameGender_gender)
 ```
 
@@ -726,7 +727,7 @@ summary(exp1_m_nameGender_gender)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -5.7492 -0.3848 -0.0928  0.3758 16.6796 
+    ## -5.7492 -0.3848 -0.0928  0.3758 16.6793 
     ## 
     ## Random effects:
     ##  Groups Name        Variance Std.Dev.
@@ -735,32 +736,32 @@ summary(exp1_m_nameGender_gender)
     ## 
     ## Fixed effects:
     ##                                                                Estimate
-    ## (Intercept)                                                    -0.47421
+    ## (Intercept)                                                    -0.47422
     ## GenderRatingCentered                                            1.41461
     ## Conditionfirst vs full                                          0.45444
     ## SubjGenderMaleNM_M                                             -0.17431
-    ## Conditionfirst vs full:SubjGenderMaleNM_M                       0.48355
-    ## GenderRatingCentered:SubjGenderMaleNM_M                         0.13910
-    ## GenderRatingCentered:Conditionfirst vs full                    -0.09913
-    ## GenderRatingCentered:Conditionfirst vs full:SubjGenderMaleNM_M -0.26971
+    ## Conditionfirst vs full:SubjGenderMaleNM_M                       0.48353
+    ## GenderRatingCentered:SubjGenderMaleNM_M                         0.13909
+    ## GenderRatingCentered:Conditionfirst vs full                    -0.09910
+    ## GenderRatingCentered:Conditionfirst vs full:SubjGenderMaleNM_M -0.26972
     ##                                                                Std. Error
-    ## (Intercept)                                                       0.09402
+    ## (Intercept)                                                       0.09401
     ## GenderRatingCentered                                              0.06258
-    ## Conditionfirst vs full                                            0.18846
+    ## Conditionfirst vs full                                            0.18844
     ## SubjGenderMaleNM_M                                                0.07759
-    ## Conditionfirst vs full:SubjGenderMaleNM_M                         0.15519
+    ## Conditionfirst vs full:SubjGenderMaleNM_M                         0.15518
     ## GenderRatingCentered:SubjGenderMaleNM_M                           0.06684
-    ## GenderRatingCentered:Conditionfirst vs full                       0.12234
-    ## GenderRatingCentered:Conditionfirst vs full:SubjGenderMaleNM_M    0.13369
+    ## GenderRatingCentered:Conditionfirst vs full                       0.12233
+    ## GenderRatingCentered:Conditionfirst vs full:SubjGenderMaleNM_M    0.13367
     ##                                                                 z value
-    ## (Intercept)                                                    -5.04377
-    ## GenderRatingCentered                                           22.60346
-    ## Conditionfirst vs full                                          2.41130
-    ## SubjGenderMaleNM_M                                             -2.24636
-    ## Conditionfirst vs full:SubjGenderMaleNM_M                       3.11580
-    ## GenderRatingCentered:SubjGenderMaleNM_M                         2.08108
-    ## GenderRatingCentered:Conditionfirst vs full                    -0.81030
-    ## GenderRatingCentered:Conditionfirst vs full:SubjGenderMaleNM_M -2.01745
+    ## (Intercept)                                                    -5.04411
+    ## GenderRatingCentered                                           22.60429
+    ## Conditionfirst vs full                                          2.41158
+    ## SubjGenderMaleNM_M                                             -2.24641
+    ## Conditionfirst vs full:SubjGenderMaleNM_M                       3.11592
+    ## GenderRatingCentered:SubjGenderMaleNM_M                         2.08105
+    ## GenderRatingCentered:Conditionfirst vs full                    -0.81009
+    ## GenderRatingCentered:Conditionfirst vs full:SubjGenderMaleNM_M -2.01777
     ##                                                                Pr(>|z|)
     ## (Intercept)                                                       0.000
     ## GenderRatingCentered                                              0.000
@@ -773,12 +774,12 @@ summary(exp1_m_nameGender_gender)
     ##                                                                Pr(>|t|)    
     ## (Intercept)                                                    4.56e-07 ***
     ## GenderRatingCentered                                            < 2e-16 ***
-    ## Conditionfirst vs full                                          0.01590 *  
+    ## Conditionfirst vs full                                          0.01588 *  
     ## SubjGenderMaleNM_M                                              0.02468 *  
     ## Conditionfirst vs full:SubjGenderMaleNM_M                       0.00183 ** 
     ## GenderRatingCentered:SubjGenderMaleNM_M                         0.03743 *  
-    ## GenderRatingCentered:Conditionfirst vs full                     0.41777    
-    ## GenderRatingCentered:Conditionfirst vs full:SubjGenderMaleNM_M  0.04365 *  
+    ## GenderRatingCentered:Conditionfirst vs full                     0.41789    
+    ## GenderRatingCentered:Conditionfirst vs full:SubjGenderMaleNM_M  0.04362 *  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -787,21 +788,22 @@ summary(exp1_m_nameGender_gender)
     ## GndrRtngCnt -0.207                                            
     ## Cndtnfrstvf -0.414  0.131                                     
     ## SbjGndMNM_M  0.005 -0.032 -0.056                              
-    ## Cvf:SGMNM_M -0.056  0.052  0.005 -0.043                       
+    ## Cvf:SGMNM_M -0.055  0.052  0.005 -0.043                       
     ## GRC:SGMNM_M -0.037  0.027  0.057 -0.285  0.088                
     ## GndrRtC:Cvf  0.116 -0.374 -0.199  0.053 -0.032 -0.089         
     ## GRC:Cvf:SGM  0.057 -0.088 -0.037  0.088 -0.285 -0.056  0.026
 
--   Participant Gender: n.s.
+- Participant Gender: n.s.
 
--   Condition (First vs Full) \* Participant Gender: There is a larger
-    difference between the First and Full Name conditions for male
-    participants (see means above), but this is n.s. after correcting
-    for multiple comparisons.
+- Condition (First vs Full) \* Participant Gender: There is a larger
+  difference between the First and Full Name conditions for male
+  participants (see means above), but this is n.s. after correcting for
+  multiple comparisons.
 
--   Name Gender \* Participant Gender: There is a stronger effect of the
-    first name gender rating for male participants, but this is n.s.
-    after correction for multiple comparisons.
+- Name Gender \* Participant Gender: There is a stronger effect of the
+  first name gender rating for male participants, but this is n.s. after
+  correction for multiple comparisons.
 
--   Condition (First vs Full) \* Name Gender \* Participant Gender:
-    trending
+- Condition (First vs Full) \* Name Gender \* Participant Gender:
+  trending
+

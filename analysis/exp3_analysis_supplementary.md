@@ -1,39 +1,44 @@
 Experiment 3: Supplementary Analyses
 ================
-2022-08-11
+2023-02-07
 
--   <a href="#setup" id="toc-setup">Setup</a>
--   <a href="#quadratic-name-gender-rating"
-    id="toc-quadratic-name-gender-rating">Quadratic Name Gender Rating</a>
-    -   <a href="#model" id="toc-model">Model</a>
-    -   <a href="#main-quadratic-effect" id="toc-main-quadratic-effect">Main
-        quadratic effect</a>
-    -   <a href="#quadratic-interaction"
-        id="toc-quadratic-interaction">Quadratic interaction</a>
--   <a href="#participant-gender" id="toc-participant-gender">Participant
-    Gender</a>
-    -   <a href="#setupdata-summary" id="toc-setupdata-summary">Setup/Data
-        Summary</a>
-    -   <a href="#model-1" id="toc-model-1">Model</a>
+- <a href="#setup" id="toc-setup">Setup</a>
+- <a href="#quadratic-name-gender-rating"
+  id="toc-quadratic-name-gender-rating">Quadratic Name Gender Rating</a>
+  - <a href="#model" id="toc-model">Model</a>
+  - <a href="#main-quadratic-effect" id="toc-main-quadratic-effect">Main
+    quadratic effect</a>
+  - <a href="#quadratic-interaction"
+    id="toc-quadratic-interaction">Quadratic interaction</a>
+- <a href="#participant-gender" id="toc-participant-gender">Participant
+  Gender</a>
+  - <a href="#setupdata-summary" id="toc-setupdata-summary">Setup/Data
+    Summary</a>
+  - <a href="#model-1" id="toc-model-1">Model</a>
+- <a href="#gender-rating-centering"
+  id="toc-gender-rating-centering">Gender Rating Centering</a>
+  - <a href="#model-6-gender-rating-recentered"
+    id="toc-model-6-gender-rating-recentered">Model 6: Gender Rating
+    Recentered</a>
 
 # Setup
 
 Variable names:
 
--   Experiment: exp3
--   Type
-    -   d = data
-    -   m = model
-    -   p = plot
-    -   est = log odds estimate from model
-    -   OR = odds ratio converted from est
--   Analysis
-    -   quad = quadratic effect of Name Gender
-    -   gender = participant gender
--   Subset
-    -   FF = First and Full Name conditions only
+- Experiment: exp3
+- Type
+  - d = data
+  - m = model
+  - p = plot
+  - est = log odds estimate from model
+  - OR = odds ratio converted from est
+- Analysis
+  - quad = quadratic effect of Name Gender
+  - gender = participant gender
+  - recentered = center name gender rating by scale (at 4)
+- Subset
+  - FF = First and Full Name conditions only
 
-    -   Last = Last Name condition only
 
 Load data and select columns used in model. See data/exp3_data_about.txt
 for more details.
@@ -104,7 +109,8 @@ intercepts by item, but not by participant.
 exp3_m_quad <- buildmer(
   She ~ Condition*GenderRatingCentered + Condition*GenderRatingSquared +
     (1|Participant) + (1|Item), 
-  exp3_d, family="binomial", direction=c("order"), quiet=TRUE)
+  data = exp3_d, family = binomial,
+  buildmerControl(direction = "order", quiet = TRUE))
 summary(exp3_m_quad)
 ```
 
@@ -199,7 +205,7 @@ exp3_p_log <- ggplot(exp3_d_log,
 exp3_p_log
 ```
 
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 
 ![](exp3_analysis_supplementary_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
@@ -229,7 +235,7 @@ exp3_p_quadCond <- ggplot(exp3_d_log,
 exp3_p_quadCond
 ```
 
-    ## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+    ## `geom_smooth()` using method = 'loess' and formula = 'y ~ x'
 
 ![](exp3_analysis_supplementary_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
@@ -356,9 +362,9 @@ summary(exp3_m_quadL)
     ## GndrRtngC:L  0.076 -0.421  0.180 -0.142       
     ## GndrRtngS:L  0.150  0.228 -0.378 -0.426 -0.655
 
--   Beta for quadratic gender rating in First + Full: -0.15028 \*\*\*
+- Beta for quadratic gender rating in First + Full: -0.15028 \*\*\*
 
--   Beta for quadratic gender rating in Last: -0.05508 .
+- Beta for quadratic gender rating in Last: -0.05508 .
 
 # Participant Gender
 
@@ -453,10 +459,10 @@ by item and by participant.
 
 ``` r
 exp3_m_gender  <- buildmer(
-  formula= (She ~ Condition * GenderRatingCentered * SubjGenderMale + 
+  formula = (She ~ Condition * GenderRatingCentered * SubjGenderMale + 
            (1|Participant) + (1|Item)), 
-  data=exp3_d_gender , family=binomial, 
-  direction=c("order"), quiet=TRUE)
+  data = exp3_d_gender, family = binomial,
+  buildmerControl(direction = "order", quiet = TRUE))
 
 summary(exp3_m_gender)
 ```
@@ -475,7 +481,7 @@ summary(exp3_m_gender)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -3.0837 -0.4716 -0.1392  0.5318  9.8646 
+    ## -3.0837 -0.4716 -0.1392  0.5318  9.8645 
     ## 
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
@@ -485,31 +491,31 @@ summary(exp3_m_gender)
     ## 
     ## Fixed effects:
     ##                                                     Estimate Std. Error
-    ## (Intercept)                                         -1.58002    0.10544
+    ## (Intercept)                                         -1.58004    0.10544
     ## GenderRatingCentered                                 1.14763    0.06289
-    ## SubjGenderMaleNM_M                                  -0.33909    0.09599
-    ## Condition1                                           0.19524    0.09836
+    ## SubjGenderMaleNM_M                                  -0.33908    0.09599
+    ## Condition1                                           0.19527    0.09835
     ## Condition2                                           0.13618    0.12205
     ## GenderRatingCentered:Condition1                      0.11311    0.05254
     ## GenderRatingCentered:Condition2                     -0.07906    0.06655
-    ## SubjGenderMaleNM_M:Condition1                        0.12030    0.19714
-    ## SubjGenderMaleNM_M:Condition2                        0.04669    0.24326
-    ## GenderRatingCentered:SubjGenderMaleNM_M             -0.01730    0.05160
-    ## GenderRatingCentered:SubjGenderMaleNM_M:Condition1   0.09437    0.10525
-    ## GenderRatingCentered:SubjGenderMaleNM_M:Condition2  -0.04576    0.13265
+    ## SubjGenderMaleNM_M:Condition1                        0.12026    0.19712
+    ## SubjGenderMaleNM_M:Condition2                        0.04672    0.24324
+    ## GenderRatingCentered:SubjGenderMaleNM_M             -0.01729    0.05160
+    ## GenderRatingCentered:SubjGenderMaleNM_M:Condition1   0.09438    0.10525
+    ## GenderRatingCentered:SubjGenderMaleNM_M:Condition2  -0.04578    0.13264
     ##                                                      z value Pr(>|z|) Pr(>|t|)
-    ## (Intercept)                                        -14.98454    0.000  < 2e-16
-    ## GenderRatingCentered                                18.24809    0.000  < 2e-16
-    ## SubjGenderMaleNM_M                                  -3.53262    0.000 0.000411
-    ## Condition1                                           1.98504    0.047 0.047140
-    ## Condition2                                           1.11573    0.265 0.264537
-    ## GenderRatingCentered:Condition1                      2.15271    0.031 0.031341
-    ## GenderRatingCentered:Condition2                     -1.18800    0.235 0.234832
-    ## SubjGenderMaleNM_M:Condition1                        0.61022    0.542 0.541713
-    ## SubjGenderMaleNM_M:Condition2                        0.19192    0.848 0.847808
-    ## GenderRatingCentered:SubjGenderMaleNM_M             -0.33529    0.737 0.737408
-    ## GenderRatingCentered:SubjGenderMaleNM_M:Condition1   0.89660    0.370 0.369931
-    ## GenderRatingCentered:SubjGenderMaleNM_M:Condition2  -0.34493    0.730 0.730144
+    ## (Intercept)                                        -14.98481    0.000  < 2e-16
+    ## GenderRatingCentered                                18.24838    0.000  < 2e-16
+    ## SubjGenderMaleNM_M                                  -3.53250    0.000 0.000412
+    ## Condition1                                           1.98537    0.047 0.047104
+    ## Condition2                                           1.11579    0.265 0.264510
+    ## GenderRatingCentered:Condition1                      2.15269    0.031 0.031343
+    ## GenderRatingCentered:Condition2                     -1.18805    0.235 0.234816
+    ## SubjGenderMaleNM_M:Condition1                        0.61010    0.542 0.541795
+    ## SubjGenderMaleNM_M:Condition2                        0.19208    0.848 0.847682
+    ## GenderRatingCentered:SubjGenderMaleNM_M             -0.33513    0.738 0.737525
+    ## GenderRatingCentered:SubjGenderMaleNM_M:Condition1   0.89671    0.370 0.369876
+    ## GenderRatingCentered:SubjGenderMaleNM_M:Condition2  -0.34513    0.730 0.729996
     ##                                                       
     ## (Intercept)                                        ***
     ## GenderRatingCentered                               ***
@@ -552,6 +558,6 @@ summary(exp3_m_gender)
     ## GRC:SGMNM_M:C1  0.015     -0.001                     
     ## GRC:SGMNM_M:C2 -0.506     -0.066       -0.016
 
--   Male participants less likely to produce *she* responses overall
+- Male participants less likely to produce *she* responses overall
 
--   No interactions with participant gender significant
+- No interactions with participant gender significant
