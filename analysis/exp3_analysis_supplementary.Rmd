@@ -30,7 +30,6 @@ library(broom.mixed)
 
 Variable names:
 
--   Type
 -   Experiment: exp3\_
 -   Data (\_d\_)
     -   d = main df
@@ -41,6 +40,7 @@ Variable names:
         conditions as 1
     -   quad = quadratic effect of Name Gender
     -   subjGender = participant gender
+    -   recenter= center name gender rating by scale (at 4)
 -   Plots (\_p\_)
 
 Load data and select columns used in model. See data/exp3_data_about.txt
@@ -266,3 +266,31 @@ summary(exp3_m_subjGender)
 -   Male participants less likely to produce *she* responses overall
 
 -   No interactions with participant gender significant
+
+# Gender Rating Centering
+
+The first name gender ratings aren't perfectly centered, partially
+because mostly-feminine/somewhat-masculine names are much less common
+than mostly-masculine/somewhat-feminine names.
+
+```{r}
+mean(exp3_d$GenderRating, na.rm = TRUE)
+```
+
+Does it make a difference if we center it on 4, the mean of the scale,
+instead of 4.21, the mean of the items?
+
+```{r}
+exp3_d %<>% mutate(GenderRating4 = GenderRating - 4)
+```
+
+```{r}
+exp3_m_recenter <- glmer(
+  She ~ Condition * GenderRating4 + (1|Participant) + (1|Item), 
+  exp3_d, family = binomial)
+summary(exp3_m_recenter)
+```
+
+Here, the beta estimate for the intercept has a larger absolute value
+(-1.76 vs -1.52), and the beta estimates for the condition effects is
+slightly different (0.13 vs 0.15; 0.10 vs 0.09).

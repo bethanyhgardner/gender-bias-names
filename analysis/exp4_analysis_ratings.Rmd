@@ -34,6 +34,7 @@ Variable names:
     -   like = Likeability ratings
     -   acc = Accomplishment ratings
     -   imp = Importance ratings
+    -   ratings = build model with all 3 ratings
 
 ```{r}
 exp4_d <- read.csv("../data/exp4_data.csv", 
@@ -184,3 +185,17 @@ summary(exp4_m_imp)
 
 -   Interaction with Name Gender Rating: stronger effect of Importance
     rating for more feminine names
+
+# All Ratings
+
+```{r cache=TRUE}
+exp4_m_ratings <- buildmer(
+  formula = Female ~ Condition * GenderRatingCentered * LikeableCentered * 
+            AccomplishedCentered * ImportantCentered +
+            (1|Participant) + (1|Item),
+  data = exp4_d,
+  family = binomial, 
+  buildmerControl(direction = c("order", "backward"), quiet = TRUE))
+
+summary(exp4_m_ratings)
+```

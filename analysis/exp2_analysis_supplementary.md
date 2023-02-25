@@ -37,6 +37,10 @@ Experiment 2: Supplementary Analyses
     id="toc-model-5-condition--name-gender--participant-gender">Model 5:
     Condition * Name Gender * Participant Gender</a>
 - <a href="#gender-rating-centering"
+  id="toc-gender-rating-centering">Gender Rating Centering</a>
+  - <a href="#model-6-gender-rating-recentered"
+    id="toc-model-6-gender-rating-recentered">Model 6: Gender Rating
+    Recentered</a>
 
 # Setup
 
@@ -62,6 +66,7 @@ Variable names:
     conditions as 1
   - quad = quadratic effect of Gender Rating
   - subjGender = participant gender
+  - recentered = center name gender rating by scale (at 4)
 
 Load data and select columns used in model. See data/exp2_data_about.txt
 for more details.
@@ -1054,3 +1059,70 @@ summary(exp2_m_nameGender_subjgender)
   participants.
 - Interaction with Condition, three-way interaction with Name Gender and
   Condition n.s.
+
+# Gender Rating Centering
+
+The first name gender ratings aren’t perfectly centered, partially
+because mostly-feminine/somewhat-masculine names are much less common
+than mostly-masculine/somewhat-feminine names.
+
+``` r
+mean(exp2_d$GenderRating, na.rm = TRUE)
+```
+
+    ## [1] 4.22436
+
+Does it make a difference if we center it on 4, the mean of the scale,
+instead of 4.22, the mean of the items?
+
+``` r
+exp2_d_FF %<>% mutate(GenderRating4 = GenderRating - 4)
+```
+
+## Model 6: Gender Rating Recentered
+
+``` r
+exp2_m_recenter <- glmer(
+  Female ~ Condition * GenderRating4 + (1|Participant) + (1|Item), 
+  data = exp2_d_FF, family=binomial)
+summary(exp2_m_recenter)
+```
+
+    ## Generalized linear mixed model fit by maximum likelihood (Laplace
+    ##   Approximation) [glmerMod]
+    ##  Family: binomial  ( logit )
+    ## Formula: Female ~ Condition * GenderRating4 + (1 | Participant) + (1 |  
+    ##     Item)
+    ##    Data: exp2_d_FF
+    ## 
+    ##      AIC      BIC   logLik deviance df.resid 
+    ##   6775.6   6816.1  -3381.8   6763.6     6315 
+    ## 
+    ## Scaled residuals: 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -2.9386 -0.6285 -0.2404  0.6240  4.3729 
+    ## 
+    ## Random effects:
+    ##  Groups      Name        Variance Std.Dev.
+    ##  Participant (Intercept) 0.1137   0.3372  
+    ##  Item        (Intercept) 0.1414   0.3760  
+    ## Number of obs: 6321, groups:  Participant, 903; Item, 83
+    ## 
+    ## Fixed effects:
+    ##                                      Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)                          -0.35142    0.05961  -5.896 3.73e-09 ***
+    ## Conditionfirst vs full               -0.20833    0.11889  -1.752   0.0797 .  
+    ## GenderRating4                         0.78323    0.03506  22.338  < 2e-16 ***
+    ## Conditionfirst vs full:GenderRating4 -0.06596    0.06862  -0.961   0.3365    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Correlation of Fixed Effects:
+    ##             (Intr) Cndtvf GndrR4
+    ## Cndtnfrstvf -0.329              
+    ## GenderRtng4 -0.195  0.025       
+    ## Cvfll:GndR4  0.028 -0.186 -0.297
+
+Here, the absolute value of the beta estimate for the intercept is again
+larger for the intercept (-0.35 vs -0.18) but the same for the condition
+effect (-0.21 vs -0.22).

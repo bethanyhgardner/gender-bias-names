@@ -24,6 +24,8 @@ Experiment 4: Supplementary Analyses
   - <a href="#model-condition--name-gender--participant-gender"
     id="toc-model-condition--name-gender--participant-gender">Model:
     Condition * Name Gender * Participant Gender</a>
+- <a href="#gender-rating-centering"
+  id="toc-gender-rating-centering">Gender Rating Centering</a>
 
 # Setup
 
@@ -46,6 +48,7 @@ Variable names:
     conditions as 1
   - quad = quadratic effect of Name Gender
   - subjGender = participant gender
+  - recenter= center name gender rating by scale (at 4)
 
 Load data and select columns used in model. See data/exp4_data_about.txt
 for more details.
@@ -617,4 +620,73 @@ summary(exp4_m_subjGender)
 - Male participants less likely to recall character as female than
   non-male participants overall.
 
--   No other interactions with participant gender significant.
+- No other interactions with participant gender significant.
+
+# Gender Rating Centering
+
+The first name gender ratings aren’t perfectly centered, partially
+because mostly-feminine/somewhat-masculine names are much less common
+than mostly-masculine/somewhat-feminine names.
+
+``` r
+mean(exp4_d$GenderRating, na.rm = TRUE)
+```
+
+    ## [1] 4.206052
+
+Does it make a difference if we center it on 4, the mean of the scale,
+instead of 4.21, the mean of the items?
+
+``` r
+exp4_d %<>% mutate(GenderRating4 = GenderRating - 4)
+```
+
+``` r
+exp4_m_recenter <- glmer(
+  Female ~ Condition * GenderRating4 + (1|Participant) + (1|Item), 
+  data = exp4_d, family = binomial)
+summary(exp4_m_recenter)
+```
+
+    ## Generalized linear mixed model fit by maximum likelihood (Laplace
+    ##   Approximation) [glmerMod]
+    ##  Family: binomial  ( logit )
+    ## Formula: Female ~ Condition * GenderRating4 + (1 | Participant) + (1 |  
+    ##     Item)
+    ##    Data: exp4_d
+    ## 
+    ##      AIC      BIC   logLik deviance df.resid 
+    ##   9145.4   9202.1  -4564.7   9129.4     8763 
+    ## 
+    ## Scaled residuals: 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -3.4531 -0.5754 -0.2627  0.5724  5.4530 
+    ## 
+    ## Random effects:
+    ##  Groups      Name        Variance Std.Dev.
+    ##  Participant (Intercept) 0.2014   0.4488  
+    ##  Item        (Intercept) 0.3599   0.5999  
+    ## Number of obs: 8771, groups:  Participant, 1253; Item, 63
+    ## 
+    ## Fixed effects:
+    ##                          Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)              -0.41350    0.08242  -5.017 5.25e-07 ***
+    ## Condition1                0.09925    0.06296   1.576 0.114920    
+    ## Condition2                0.08956    0.07392   1.212 0.225681    
+    ## GenderRating4             0.76408    0.04590  16.647  < 2e-16 ***
+    ## Condition1:GenderRating4  0.13147    0.03451   3.809 0.000139 ***
+    ## Condition2:GenderRating4 -0.10289    0.04204  -2.447 0.014394 *  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Correlation of Fixed Effects:
+    ##             (Intr) Cndtn1 Cndtn2 GndrR4 C1:GR4
+    ## Condition1   0.012                            
+    ## Condition2  -0.015 -0.020                     
+    ## GenderRtng4 -0.143 -0.002  0.015              
+    ## Cndtn1:GnR4 -0.003 -0.232  0.021  0.035       
+    ## Cndtn2:GnR4  0.014  0.021 -0.227 -0.030 -0.046
+
+Here, the beta estimate for the intercept has a larger absolute value
+(-0.41 vs -0.26), and the beta estimates for the condition effects is
+slightly different (0.10 vs 0.13; 0.09 vs 0.07).

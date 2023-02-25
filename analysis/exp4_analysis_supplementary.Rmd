@@ -28,7 +28,6 @@ library(kableExtra)
 
 # Setup
 
-            Gender Rating
 Variable names:
 
 -   Experiment: exp4\_
@@ -48,6 +47,7 @@ Variable names:
         conditions as 1
     -   quad = quadratic effect of Name Gender
     -   subjGender = participant gender
+    -   recenter= center name gender rating by scale (at 4)
 
 Load data and select columns used in model. See data/exp4_data_about.txt
 for more details.
@@ -241,15 +241,15 @@ female (N=1) are coded as 0.
 Summary of responses by condition and participant gender:
 
 ```{r}
-exp4_d_gender <- exp4_d %>% 
+exp4_d_subjGender <- exp4_d %>% 
   filter(!is.na(SubjGenderMale)) %>%
-  mutate(ResponseAll=case_when(
+  mutate(ResponseAll = case_when(
     Male   == 1 ~ "Male",
     Female == 1 ~ "Female", 
     Other  == 1 ~ "Other"))
 
-exp4_d_gender %>% group_by(SubjGenderMale) %>% 
-  summarise(total=n_distinct(Participant)) %>%
+exp4_d_subjGender %>% group_by(SubjGenderMale) %>% 
+  summarise(total = n_distinct(Participant)) %>%
   kable()
 ```
 
@@ -257,9 +257,8 @@ Participant gender is mean centered effects coded, comparing non-male
 participants to male participants.
 
 ```{r}
-exp4_d_gender$SubjGenderMale %<>% as.factor()
-contrasts(exp4_d_gender$SubjGenderMale)=cbind("NM_M"=c(-.5,.5)) 
-contrasts(exp4_d_gender$SubjGenderMale)
+exp4_d_subjGender$SubjGenderMale %<>% as.factor()
+contrasts(exp4_d_subjGender$SubjGenderMale) = cbind("NM_M"=c(-.5, .5)) 
 contrasts(exp4_d_subjGender$SubjGenderMale)
 ```
 
@@ -282,3 +281,31 @@ summary(exp4_m_subjGender)
     non-male participants overall.
 
 -   No other interactions with participant gender significant.
+
+# Gender Rating Centering
+
+The first name gender ratings aren't perfectly centered, partially
+because mostly-feminine/somewhat-masculine names are much less common
+than mostly-masculine/somewhat-feminine names.
+
+```{r}
+mean(exp4_d$GenderRating, na.rm = TRUE)
+```
+
+Does it make a difference if we center it on 4, the mean of the scale,
+instead of 4.21, the mean of the items?
+
+```{r}
+exp4_d %<>% mutate(GenderRating4 = GenderRating - 4)
+```
+
+```{r}
+exp4_m_recenter <- glmer(
+  Female ~ Condition * GenderRating4 + (1|Participant) + (1|Item), 
+  data = exp4_d, family = binomial)
+summary(exp4_m_recenter)
+```
+
+Here, the beta estimate for the intercept has a larger absolute value
+(-0.41 vs -0.26), and the beta estimates for the condition effects is
+slightly different (0.10 vs 0.13; 0.09 vs 0.07).

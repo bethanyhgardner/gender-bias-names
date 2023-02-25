@@ -39,6 +39,7 @@ Experiment 1: Supplementary Analyses
   id="toc-gender-rating-centering">Gender Rating Centering</a>
   - <a href="#model-6-gender-rating-recentered"
     id="toc-model-6-gender-rating-recentered">Model 6: Gender Rating
+    Recentered</a>
 
 # Setup
 
@@ -66,6 +67,7 @@ Variable names:
 
   - subjGender = participant gender
 
+  - recenter = center name Gender Rating by scale (at 4)
 
 Load data and select columns used in model. See data/exp1_data_about.txt
 for more details.
@@ -762,6 +764,25 @@ last
 </td>
 <td style="text-align:left;">
 Male
+</td>
+<td style="text-align:right;">
+1418
+</td>
+<td style="text-align:right;">
+176
+</td>
+<td style="text-align:right;">
+107
+</td>
+<td style="text-align:right;">
+0.067
+</td>
+<td style="text-align:right;">
+0.075
+</td>
+</tr>
+</tbody>
+</table>
 
 Participant gender is mean centered effects coded, comparing non-male
 participants to male participants.
@@ -966,3 +987,68 @@ summary(exp1_m_nameGender_subjGender)
 - Condition (First vs Full) \* Name Gender \* Participant Gender:
   trending
 
+# Gender Rating Centering
+
+The first name gender ratings aren’t perfectly centered, partially
+because mostly-feminine/somewhat-masculine names are much less common
+than mostly-masculine/somewhat-feminine names.
+
+``` r
+mean(exp1_d$GenderRating, na.rm = TRUE)
+```
+
+    ## [1] 4.207042
+
+Does it make a difference if we center it on 4, the mean of the scale,
+instead of 4.21, the mean of the items?
+
+``` r
+exp1_d_FF %<>% mutate(GenderRating4 = GenderRating - 4)
+```
+
+## Model 6: Gender Rating Recentered
+
+``` r
+exp1_m_recenter <- glmer(
+  She ~ Condition * GenderRating4 + (1|Participant) + (1|Item), 
+  data = exp1_d_FF, family = binomial)
+summary(exp1_m_recenter)
+```
+
+    ## Generalized linear mixed model fit by maximum likelihood (Laplace
+    ##   Approximation) [glmerMod]
+    ##  Family: binomial  ( logit )
+    ## Formula: She ~ Condition * GenderRating4 + (1 | Participant) + (1 | Item)
+    ##    Data: exp1_d_FF
+    ## 
+    ##      AIC      BIC   logLik deviance df.resid 
+    ##   4657.4   4698.0  -2322.7   4645.4     6366 
+    ## 
+    ## Scaled residuals: 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -9.1567 -0.3548 -0.0551  0.3126 14.3198 
+    ## 
+    ## Random effects:
+    ##  Groups      Name        Variance Std.Dev.
+    ##  Participant (Intercept) 0.889    0.9429  
+    ##  Item        (Intercept) 0.501    0.7078  
+    ## Number of obs: 6372, groups:  Participant, 305; Item, 83
+    ## 
+    ## Fixed effects:
+    ##                                      Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)                          -0.84312    0.12346  -6.829 8.55e-12 ***
+    ## Conditionfirst vs full                0.56825    0.24657   2.305   0.0212 *  
+    ## GenderRating4                         1.59329    0.07253  21.966  < 2e-16 ***
+    ## Conditionfirst vs full:GenderRating4 -0.17493    0.13918  -1.257   0.2088    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Correlation of Fixed Effects:
+    ##             (Intr) Cndtvf GndrR4
+    ## Cndtnfrstvf -0.360              
+    ## GenderRtng4 -0.296  0.166       
+    ## Cvfll:GndR4  0.158 -0.284 -0.409
+
+Here, the beta estimate for the intercept has a larger absolute value
+(-0.84 vs -0.51), and the beta estimate for the condition effect is
+slightly higher (0.57 vs 0.53).

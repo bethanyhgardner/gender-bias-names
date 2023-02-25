@@ -19,6 +19,7 @@ Variable names:
   - like = Likeability ratings
   - acc = Accomplishment ratings
   - imp = Importance ratings
+  - ratings = build model with all 3 ratings
 
 Load data and select columns used in model. See data/exp3_data_about.txt
 for more details.
@@ -503,3 +504,148 @@ summary(exp3_m_imp)
 - Interaction between Important, Name Gender Rating, and Condition (L vs
   F+F), but this is way too small to be significant after correction for
   multiple comparisons
+
+# All Ratings
+
+``` r
+exp3_m_ratings <- buildmer(
+  formula = She ~ Condition * GenderRatingCentered * LikeableCentered * 
+            AccomplishedCentered * ImportantCentered +
+            (1|Participant) + (1|Item),
+  data = exp3_d,
+  family = binomial, 
+  buildmerControl(direction = c("order", "backward"), quiet = TRUE))
+
+summary(exp3_m_ratings)
+```
+
+    ## 
+    ## Call:
+    ## stats::glm(formula = She ~ 1 + GenderRatingCentered + LikeableCentered + 
+    ##     Condition + ImportantCentered + AccomplishedCentered + Condition:AccomplishedCentered + 
+    ##     Condition:ImportantCentered + LikeableCentered:Condition + 
+    ##     LikeableCentered:AccomplishedCentered + LikeableCentered:ImportantCentered + 
+    ##     ImportantCentered:AccomplishedCentered + LikeableCentered:ImportantCentered:AccomplishedCentered + 
+    ##     LikeableCentered:Condition:AccomplishedCentered + LikeableCentered:Condition:ImportantCentered + 
+    ##     Condition:ImportantCentered:AccomplishedCentered + Condition:LikeableCentered:AccomplishedCentered:ImportantCentered, 
+    ##     family = binomial, data = exp3_d)
+    ## 
+    ## Deviance Residuals: 
+    ##     Min       1Q   Median       3Q      Max  
+    ## -1.9790  -0.7231  -0.3095   0.7728   2.9943  
+    ## 
+    ## Coefficients:
+    ##                                                                     Estimate
+    ## (Intercept)                                                        -1.183679
+    ## GenderRatingCentered                                                0.895923
+    ## LikeableCentered                                                    0.110380
+    ## Condition1                                                          0.192791
+    ## Condition2                                                         -0.061019
+    ## ImportantCentered                                                  -0.070138
+    ## AccomplishedCentered                                                0.053692
+    ## Condition1:AccomplishedCentered                                     0.043019
+    ## Condition2:AccomplishedCentered                                    -0.239237
+    ## Condition1:ImportantCentered                                       -0.035665
+    ## Condition2:ImportantCentered                                        0.100167
+    ## LikeableCentered:Condition1                                        -0.052403
+    ## LikeableCentered:Condition2                                         0.022351
+    ## LikeableCentered:AccomplishedCentered                               0.008091
+    ## LikeableCentered:ImportantCentered                                  0.005932
+    ## ImportantCentered:AccomplishedCentered                              0.000364
+    ## LikeableCentered:ImportantCentered:AccomplishedCentered             0.009798
+    ## LikeableCentered:Condition1:AccomplishedCentered                    0.007850
+    ## LikeableCentered:Condition2:AccomplishedCentered                    0.017325
+    ## LikeableCentered:Condition1:ImportantCentered                       0.008035
+    ## LikeableCentered:Condition2:ImportantCentered                       0.078234
+    ## Condition1:ImportantCentered:AccomplishedCentered                   0.023376
+    ## Condition2:ImportantCentered:AccomplishedCentered                   0.029479
+    ## LikeableCentered:Condition1:ImportantCentered:AccomplishedCentered  0.022956
+    ## LikeableCentered:Condition2:ImportantCentered:AccomplishedCentered  0.057829
+    ##                                                                    Std. Error
+    ## (Intercept)                                                          0.038223
+    ## GenderRatingCentered                                                 0.021163
+    ## LikeableCentered                                                     0.032207
+    ## Condition1                                                           0.069638
+    ## Condition2                                                           0.087625
+    ## ImportantCentered                                                    0.029469
+    ## AccomplishedCentered                                                 0.034803
+    ## Condition1:AccomplishedCentered                                      0.071294
+    ## Condition2:AccomplishedCentered                                      0.089899
+    ## Condition1:ImportantCentered                                         0.059845
+    ## Condition2:ImportantCentered                                         0.077861
+    ## LikeableCentered:Condition1                                          0.065543
+    ## LikeableCentered:Condition2                                          0.084333
+    ## LikeableCentered:AccomplishedCentered                                0.021795
+    ## LikeableCentered:ImportantCentered                                   0.022602
+    ## ImportantCentered:AccomplishedCentered                               0.023053
+    ## LikeableCentered:ImportantCentered:AccomplishedCentered              0.008109
+    ## LikeableCentered:Condition1:AccomplishedCentered                     0.043915
+    ## LikeableCentered:Condition2:AccomplishedCentered                     0.058238
+    ## LikeableCentered:Condition1:ImportantCentered                        0.045577
+    ## LikeableCentered:Condition2:ImportantCentered                        0.060974
+    ## Condition1:ImportantCentered:AccomplishedCentered                    0.047445
+    ## Condition2:ImportantCentered:AccomplishedCentered                    0.058217
+    ## LikeableCentered:Condition1:ImportantCentered:AccomplishedCentered   0.016068
+    ## LikeableCentered:Condition2:ImportantCentered:AccomplishedCentered   0.022892
+    ##                                                                    z value
+    ## (Intercept)                                                        -30.968
+    ## GenderRatingCentered                                                42.335
+    ## LikeableCentered                                                     3.427
+    ## Condition1                                                           2.768
+    ## Condition2                                                          -0.696
+    ## ImportantCentered                                                   -2.380
+    ## AccomplishedCentered                                                 1.543
+    ## Condition1:AccomplishedCentered                                      0.603
+    ## Condition2:AccomplishedCentered                                     -2.661
+    ## Condition1:ImportantCentered                                        -0.596
+    ## Condition2:ImportantCentered                                         1.286
+    ## LikeableCentered:Condition1                                         -0.800
+    ## LikeableCentered:Condition2                                          0.265
+    ## LikeableCentered:AccomplishedCentered                                0.371
+    ## LikeableCentered:ImportantCentered                                   0.262
+    ## ImportantCentered:AccomplishedCentered                               0.016
+    ## LikeableCentered:ImportantCentered:AccomplishedCentered              1.208
+    ## LikeableCentered:Condition1:AccomplishedCentered                     0.179
+    ## LikeableCentered:Condition2:AccomplishedCentered                     0.297
+    ## LikeableCentered:Condition1:ImportantCentered                        0.176
+    ## LikeableCentered:Condition2:ImportantCentered                        1.283
+    ## Condition1:ImportantCentered:AccomplishedCentered                    0.493
+    ## Condition2:ImportantCentered:AccomplishedCentered                    0.506
+    ## LikeableCentered:Condition1:ImportantCentered:AccomplishedCentered   1.429
+    ## LikeableCentered:Condition2:ImportantCentered:AccomplishedCentered   2.526
+    ##                                                                    Pr(>|z|)    
+    ## (Intercept)                                                         < 2e-16 ***
+    ## GenderRatingCentered                                                < 2e-16 ***
+    ## LikeableCentered                                                    0.00061 ***
+    ## Condition1                                                          0.00563 ** 
+    ## Condition2                                                          0.48621    
+    ## ImportantCentered                                                   0.01731 *  
+    ## AccomplishedCentered                                                0.12289    
+    ## Condition1:AccomplishedCentered                                     0.54624    
+    ## Condition2:AccomplishedCentered                                     0.00779 ** 
+    ## Condition1:ImportantCentered                                        0.55121    
+    ## Condition2:ImportantCentered                                        0.19827    
+    ## LikeableCentered:Condition1                                         0.42398    
+    ## LikeableCentered:Condition2                                         0.79098    
+    ## LikeableCentered:AccomplishedCentered                               0.71047    
+    ## LikeableCentered:ImportantCentered                                  0.79297    
+    ## ImportantCentered:AccomplishedCentered                              0.98740    
+    ## LikeableCentered:ImportantCentered:AccomplishedCentered             0.22694    
+    ## LikeableCentered:Condition1:AccomplishedCentered                    0.85814    
+    ## LikeableCentered:Condition2:AccomplishedCentered                    0.76610    
+    ## LikeableCentered:Condition1:ImportantCentered                       0.86006    
+    ## LikeableCentered:Condition2:ImportantCentered                       0.19947    
+    ## Condition1:ImportantCentered:AccomplishedCentered                   0.62223    
+    ## Condition2:ImportantCentered:AccomplishedCentered                   0.61260    
+    ## LikeableCentered:Condition1:ImportantCentered:AccomplishedCentered  0.15310    
+    ## LikeableCentered:Condition2:ImportantCentered:AccomplishedCentered  0.01153 *  
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## (Dispersion parameter for binomial family taken to be 1)
+    ## 
+    ##     Null deviance: 11191.3  on 8903  degrees of freedom
+    ## Residual deviance:  8193.3  on 8879  degrees of freedom
+    ## AIC: 8243.3
+    ## 
+    ## Number of Fisher Scoring iterations: 5

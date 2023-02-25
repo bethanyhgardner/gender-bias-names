@@ -32,6 +32,7 @@ Variable names:
     conditions as 1
   - quad = quadratic effect of Name Gender
   - subjGender = participant gender
+  - recenter= center name gender rating by scale (at 4)
 - Plots (\_p\_)
 
 Load data and select columns used in model. See data/exp3_data_about.txt
@@ -556,3 +557,71 @@ summary(exp3_m_subjGender)
 - Male participants less likely to produce *she* responses overall
 
 - No interactions with participant gender significant
+
+# Gender Rating Centering
+
+The first name gender ratings aren’t perfectly centered, partially
+because mostly-feminine/somewhat-masculine names are much less common
+than mostly-masculine/somewhat-feminine names.
+
+``` r
+mean(exp3_d$GenderRating, na.rm = TRUE)
+```
+
+    ## [1] 4.206009
+
+Does it make a difference if we center it on 4, the mean of the scale,
+instead of 4.21, the mean of the items?
+
+``` r
+exp3_d %<>% mutate(GenderRating4 = GenderRating - 4)
+```
+
+``` r
+exp3_m_recenter <- glmer(
+  She ~ Condition * GenderRating4 + (1|Participant) + (1|Item), 
+  exp3_d, family = binomial)
+summary(exp3_m_recenter)
+```
+
+    ## Generalized linear mixed model fit by maximum likelihood (Laplace
+    ##   Approximation) [glmerMod]
+    ##  Family: binomial  ( logit )
+    ## Formula: She ~ Condition * GenderRating4 + (1 | Participant) + (1 | Item)
+    ##    Data: exp3_d
+    ## 
+    ##      AIC      BIC   logLik deviance df.resid 
+    ##   7825.8   7882.5  -3904.9   7809.8     8896 
+    ## 
+    ## Scaled residuals: 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -3.0250 -0.4836 -0.1394  0.5355  9.7282 
+    ## 
+    ## Random effects:
+    ##  Groups      Name        Variance Std.Dev.
+    ##  Participant (Intercept) 0.7931   0.8905  
+    ##  Item        (Intercept) 0.4209   0.6488  
+    ## Number of obs: 8904, groups:  Participant, 1272; Item, 63
+    ## 
+    ## Fixed effects:
+    ##                          Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)              -1.76079    0.10526 -16.728   <2e-16 ***
+    ## Condition1                0.13163    0.09692   1.358   0.1744    
+    ## Condition2                0.10279    0.12280   0.837   0.4026    
+    ## GenderRating4             1.14844    0.06039  19.017   <2e-16 ***
+    ## Condition1:GenderRating4  0.10498    0.04875   2.153   0.0313 *  
+    ## Condition2:GenderRating4 -0.05627    0.06294  -0.894   0.3713    
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Correlation of Fixed Effects:
+    ##             (Intr) Cndtn1 Cndtn2 GndrR4 C1:GR4
+    ## Condition1   0.001                            
+    ## Condition2  -0.017  0.021                     
+    ## GenderRtng4 -0.394 -0.006  0.018              
+    ## Cndtn1:GnR4 -0.011 -0.572 -0.001  0.025       
+    ## Cndtn2:GnR4  0.019 -0.001 -0.566 -0.023  0.009
+
+Here, the beta estimate for the intercept has a larger absolute value
+(-1.76 vs -1.52), and the beta estimates for the condition effects is
+slightly different (0.13 vs 0.15; 0.10 vs 0.09).
