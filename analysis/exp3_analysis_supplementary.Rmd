@@ -15,43 +15,40 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(magrittr)
-library(tidyr)
-library(dplyr)
+library(tidyverse)
 options(dplyr.summarise.inform = FALSE)
+library(magrittr)
 library(lme4)
 library(lmerTest)
 library(buildmer)
 library(kableExtra)
-library(ggplot2)
 library(ggtext)
+library(broom.mixed)
 ```
 
 # Setup
 
 Variable names:
 
--   Experiment: exp3
 -   Type
-    -   d = data
-    -   m = model
-    -   p = plot
-    -   est = log odds estimate from model
-    -   OR = odds ratio converted from est
--   Analysis
+-   Experiment: exp3\_
+-   Data (\_d\_)
+    -   d = main df
+-   Models (\_m\_)
+    -   FF = dummy coded with First + Full Name conditions as 0, Last
+        Name condition as 1
+    -   L = dummy coded with Last Name condition as 0, First + Full Name
+        conditions as 1
     -   quad = quadratic effect of Name Gender
-    -   gender = participant gender
--   Subset
-    -   FF = First and Full Name conditions only
-
-    -   Last = Last Name condition only
+    -   subjGender = participant gender
+-   Plots (\_p\_)
 
 Load data and select columns used in model. See data/exp3_data_about.txt
 for more details.
 
 ```{r}
-exp3_d <- read.csv("../data/exp3_data.csv", stringsAsFactors=TRUE) %>%
-  rename("Participant"="SubjID", "Item"="Name") %>%
+exp3_d <- read.csv("../data/exp3_data.csv", stringsAsFactors = TRUE) %>%
+  rename("Participant" = "SubjID", "Item" = "Name") %>%
   select(Participant, SubjGenderMale, Condition, 
          GenderRating, Item, He, She, Other)
 
@@ -63,8 +60,8 @@ most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
 ```{r}
-exp3_d %<>% mutate(GenderRatingCentered=
-            scale(GenderRating, scale=FALSE))
+exp3_d %<>% mutate(GenderRatingCentered =
+            scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions. This uses Scott Fraundorf's function
@@ -87,7 +84,7 @@ associations (masc or fem), and smaller values meant names with weaker
 gender associations.
 
 ```{r}
-exp3_d %<>% mutate(GenderRatingSquared=GenderRatingCentered^2)
+exp3_d %<>% mutate(GenderRatingSquared = GenderRatingCentered^2)
 ```
 
 ## Model
@@ -98,8 +95,9 @@ intercepts by item, but not by participant.
 
 ```{r}
 exp3_m_quad <- buildmer(
-  She ~ Condition*GenderRatingCentered + Condition*GenderRatingSquared +
-    (1|Participant) + (1|Item), 
+  formula = She ~ Condition*GenderRatingCentered +
+            Condition*GenderRatingSquared +
+            (1|Participant) + (1|Item), 
   data = exp3_d, family = binomial,
   buildmerControl(direction = "order", quiet = TRUE))
 summary(exp3_m_quad)
@@ -111,33 +109,20 @@ To make this easier to understand, plot the data converted to log odds.
 This includes just what the model is testing: *she* responses, no
 effects of Condition included yet.
 
-```{r}
-exp3_d_log <- exp3_d %>% 
-  group_by(Condition, GenderRating) %>%
-  summarise(He.Mean=mean(He),
-            She.Mean=mean(She),
-            Other.Mean=mean(Other)) %>%
-  mutate(He.Log=log(He.Mean),
-         She.Log=log(She.Mean),
-         Other.Log=log(Other.Mean)) %>%
-  mutate(Condition_Model=case_when(
-    Condition=="first" ~ "First + Full",
-    Condition=="full" ~ "First + Full",
-    Condition=="last" ~ "Last"))
-```
-
 ```{r warning=FALSE}
-exp3_p_log <- ggplot(exp3_d_log, 
-  aes(x=GenderRating)) +
-  geom_smooth(aes(y=She.Log), fill="red", color ="red") +
-  geom_point(aes(y=She.Log), fill="red", color ="red") +
-  geom_vline(xintercept=4) +
+exp3_p_log <- exp3_d %>% 
+  group_by(GenderRatingCentered, Item) %>%
+  summarise(She.Mean   = mean(She)) %>%
+  mutate(She.Log = log(She.Mean)) %>%
+  ggplot(aes(x = GenderRatingCentered, y = She.Log)) +
+  geom_smooth(fill="red", color ="red") +
+  geom_point(fill="red", color ="red") +
   theme_classic() +
-  labs(title="Experiment 3: Log Odds of *She* Responses", 
-       x="Masculine - Feminine", 
-       y="Log Odds") +
-  theme(text=element_text(size=16),
-        plot.title=element_markdown()) 
+  labs(title = "Experiment 3: Log Odds of *She* Responses", 
+       x     = "Masculine - Feminine", 
+       y     = "Log Odds (Item Means)") +
+  theme(text = element_text(size = 16),
+        plot.title = element_markdown()) 
 exp3_p_log
 ```
 
@@ -152,18 +137,23 @@ Now, plot the comparison for the Last vs First+Full condition
 interaction.
 
 ```{r warning=FALSE}
-exp3_p_quadCond <- ggplot(exp3_d_log, 
-  aes(x=GenderRating)) +
-  geom_smooth(aes(y=She.Log), fill="red", color ="red") +
-  geom_point(aes(y=She.Log), fill="red", color ="red") +
-  geom_vline(xintercept=4) +
-  facet_wrap(~Condition_Model) +
+exp3_p_quadCond <- exp3_d %>% 
+  mutate(Condition_Model = case_when(
+    Condition == "first" ~ "First + Full",
+    Condition == "full"  ~ "First + Full",
+    Condition == "last"  ~ "Last")) %>%
+  group_by(Condition_Model, Item, GenderRatingCentered) %>%
+  summarise(She.Mean = mean(She)) %>%
+  mutate(She.Log = log(She.Mean)) %>%
+  ggplot(aes(x = GenderRatingCentered, y = She.Log)) +
+  geom_smooth(fill="red", color ="red") +
+  geom_point(fill="red", color ="red") +
   theme_classic() +
-  labs(title="Experiment 3: Log Odds of *She* Responses", 
-       x="Masculine - Feminine", 
-       y="Log Odds") +
-  theme(text=element_text(size=16),
-        plot.title=element_markdown()) 
+  labs(title = "Experiment 3: Log Odds of *She* Responses", 
+       x = "Masculine - Feminine", 
+       y = "Log Odds (Item Means)") +
+  theme(text = element_text(size = 16),
+        plot.title = element_markdown()) 
 exp3_p_quadCond
 ```
 
@@ -171,39 +161,47 @@ Dummy code to get the quadratic effect just for First and Full Name
 conditions.
 
 ```{r}
-exp3_d$FFdummy = as.numeric(exp3_d$Condition) 
-exp3_d$FFdummy[exp3_d$FFdummy == 1] <- 0
-exp3_d$FFdummy[exp3_d$FFdummy == 2] <- 0
-exp3_d$FFdummy[exp3_d$FFdummy == 3] <- 1
-with(exp3_d, tapply(FFdummy, list(Condition), mean)) 
+exp3_d %<>% mutate(Condition_FF = case_when(
+  Condition == "first" ~ 0,
+  Condition == "full"  ~ 0,
+  Condition == "last"  ~ 1))
+exp3_d$Condition_FF %<>% as.factor()
 
-exp3_m_quadFF <- glmer(
+exp3_m_FF_quad <- glmer(
   She ~ 1 + GenderRatingCentered + GenderRatingSquared + 
-    FFdummy + GenderRatingCentered:FFdummy + 
-    GenderRatingSquared:FFdummy +  (1|Item), 
-    data=exp3_d, family=binomial)
-summary(exp3_m_quadFF)
+    Condition_FF + GenderRatingCentered:Condition_FF + 
+    GenderRatingSquared:Condition_FF + (1|Participant) + (1|Item), 
+  data = exp3_d, family = binomial)
+
+summary(exp3_m_FF_quad)
 ```
 
-Dummy code to get the quadratic effect just for First and Full Name
-conditions.
+Dummy code to get the quadratic effect just for Last Name condition.
 
 ```{r}
-exp3_d$Ldummy = as.numeric(exp3_d$Condition) 
-exp3_d$Ldummy[exp3_d$Ldummy == 1] <- 1
-exp3_d$Ldummy[exp3_d$Ldummy == 2] <- 1
-exp3_d$Ldummy[exp3_d$Ldummy == 3] <- 0
-with(exp3_d, tapply(Ldummy, list(Condition), mean)) 
+exp3_d %<>% mutate(Condition_Last = case_when(
+  Condition == "first" ~ 1,
+  Condition == "full"  ~ 1,
+  Condition == "last"  ~ 0))
+exp3_d$Condition_Last %<>% as.factor()
 
-exp3_m_quadL <- glmer(
+exp3_m_L_quad <- glmer(
   She ~ 1 + GenderRatingCentered + GenderRatingSquared + 
-    Ldummy + GenderRatingCentered:Ldummy + 
-    GenderRatingSquared:Ldummy +  (1|Item), 
-    data=exp3_d, family=binomial)
-summary(exp3_m_quadL)
+    Condition_Last + GenderRatingCentered:Condition_Last + 
+    GenderRatingSquared:Condition_Last + (1|Participant) + (1|Item), 
+  data = exp3_d, family = binomial)
+summary(exp3_m_L_quad)
 ```
 
--   Beta for quadratic gender rating in First + Full: -0.15028 \*\*\*
+```{r}
+exp3_m_FF_quad %>% tidy() %>%
+  filter(term == "GenderRatingSquared") %>% pull(estimate)
+
+exp3_m_L_quad %>% tidy() %>%
+  filter(term == "GenderRatingSquared") %>% pull(estimate)
+```
+
+-   Beta for quadratic gender rating in First + Full: -0.15\*\*\*
 
 -   Beta for quadratic gender rating in Last: -0.05508 .
 
@@ -219,7 +217,7 @@ Participants entered their gender in a free-response box.
 
 ```{r}
 exp3_d %>% group_by(SubjGenderMale) %>% 
-  summarise(total=n_distinct(Participant)) %>% kable()
+  summarise(total = n_distinct(Participant)) %>% kable()
 ```
 
 For this analysis, we exclude participants who did not respond (N=116)..
@@ -231,20 +229,20 @@ participants are coded as 0.
 Summary of responses by condition and participant gender:
 
 ```{r}
-exp3_d_gender <- exp3_d %>% filter(!is.na(SubjGenderMale))
-exp3_d_gender %<>% mutate(ResponseAll=case_when(
-  He==1 ~ "He",
-  She==1 ~ "She", 
-  Other==1 ~ "Other"))
+exp3_d_subjGender <- exp3_d %>% filter(!is.na(SubjGenderMale))
+exp3_d_subjGender %<>% mutate(ResponseAll = case_when(
+  He    == 1 ~ "He",
+  She   == 1 ~ "She", 
+  Other == 1 ~ "Other"))
 ```
 
 Participant gender is mean centered effects coded, comparing non-male
 participants to male participants.
 
 ```{r}
-exp3_d_gender$SubjGenderMale %<>% as.factor()
-contrasts(exp3_d_gender$SubjGenderMale)=cbind("NM_M"=c(-.5,.5)) 
-contrasts(exp3_d_gender$SubjGenderMale)
+exp3_d_subjGender$SubjGenderMale %<>% as.factor()
+contrasts(exp3_d_subjGender$SubjGenderMale) = cbind("NM_M"=c(-.5, .5)) 
+contrasts(exp3_d_subjGender$SubjGenderMale)
 ```
 
 ## Model
@@ -256,13 +254,13 @@ Gender Rating (centered, positive=more feminine), and Participant Gender
 by item and by participant.
 
 ```{r}
-exp3_m_gender  <- buildmer(
-  formula = (She ~ Condition * GenderRatingCentered * SubjGenderMale + 
-           (1|Participant) + (1|Item)), 
-  data = exp3_d_gender, family = binomial,
+exp3_m_subjGender  <- buildmer(
+  formula = She ~ Condition * GenderRatingCentered * SubjGenderMale + 
+            (1|Participant) + (1|Item), 
+  data = exp3_d_subjGender, family = binomial,
   buildmerControl(direction = "order", quiet = TRUE))
 
-summary(exp3_m_gender)
+summary(exp3_m_subjGender)
 ```
 
 -   Male participants less likely to produce *she* responses overall

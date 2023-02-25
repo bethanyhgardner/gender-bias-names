@@ -1,62 +1,54 @@
 Experiment 4: Main Analyses
 ================
-2022-08-12
+2023-02-24
 
--   <a href="#setup" id="toc-setup">Setup</a>
--   <a href="#data-summary" id="toc-data-summary">Data Summary</a>
--   <a href="#main-model" id="toc-main-model">Main Model</a>
-    -   <a href="#l-v-ff-interaction" id="toc-l-v-ff-interaction">L v F+F
-        Interaction</a>
-    -   <a href="#f-v-f-interaction" id="toc-f-v-f-interaction">F v F
-        Interaction</a>
-    -   <a href="#odds-ratios-intercept" id="toc-odds-ratios-intercept">Odds
-        Ratios: Intercept</a>
-    -   <a href="#odds-ratios-last-vs-firstfull"
-        id="toc-odds-ratios-last-vs-firstfull">Odds Ratios: Last vs
-        First+Full</a>
-    -   <a href="#odds-ratios-last-only" id="toc-odds-ratios-last-only">Odds
-        Ratios: Last Only</a>
-    -   <a href="#odds-ratios-first-and-full-only"
-        id="toc-odds-ratios-first-and-full-only">Odds Ratios: First and Full
-        Only</a>
+- <a href="#setup" id="toc-setup">Setup</a>
+- <a href="#data-summary" id="toc-data-summary">Data Summary</a>
+- <a href="#main-model" id="toc-main-model">Main Model</a>
+  - <a href="#l-v-ff-interaction" id="toc-l-v-ff-interaction">L v F+F
+    Interaction</a>
+  - <a href="#f-v-f-interaction" id="toc-f-v-f-interaction">F v F
+    Interaction</a>
+  - <a href="#odds-ratios-intercept" id="toc-odds-ratios-intercept">Odds
+    Ratios: Intercept</a>
+  - <a href="#odds-ratios-last-vs-firstfull"
+    id="toc-odds-ratios-last-vs-firstfull">Odds Ratios: Last vs
+    First+Full</a>
+  - <a href="#odds-ratios-last-only" id="toc-odds-ratios-last-only">Odds
+    Ratios: Last Only</a>
+  - <a href="#odds-ratios-first-and-full-only"
+    id="toc-odds-ratios-first-and-full-only">Odds Ratios: First and Full
+    Only</a>
 
 # Setup
 
--   Variable names:
+Variable names:
 
-    -   Experiment: exp4
-
-    -   Type
-
-        -   d = data
-        -   m = model
-        -   est = log odds estimate from model
-        -   OR = odds ratio converted from est
-
-    -   Analysis
-
-        -   count =sums of response types
-        -   cond = effect of Condition (Last vs First+Full)
-        -   nameGender = effects of Condition (First vs Full) and Name
-            Gender Rating
-
-    -   Subset
-
-        -   all = including *other* responses
-
-        -   noOther = excluding *other* responses
-
-        -   FF = First and Full Name conditions only
-
-        -   Last = Last Name condition only
+- Experiment: exp4\_
+- Data (\_d\_)
+  - d = main df
+  - count =sums of response types
+- Models (\_m\_)
+  - count =sums of response types
+  - all = effect of Condition and Name Gender Rating, including *other*
+    responses
+  - cond = effect of Condition only
+  - FF = dummy coded with First + Full Name conditions as 0, Last Name
+    condition as 1
+  - L = dummy coded with Last Name condition as 0, First + Full Name
+    conditions as 1
+  - first = dummy coded with First Name condition as 0, Full Name and
+    Last Name conditions as 1
+  - full = dummy coded with Full Name condition as 0, First Name and
+    Last Name conditions as 1
 
 Load data and select columns used in model. See data/exp4_data_about.txt
 for more details.
 
 ``` r
 exp4_d <- read.csv("../data/exp4_data.csv",
-                   stringsAsFactors=TRUE) %>%
-  rename("Participant"="SubjID", "Item"="Name") %>%
+                   stringsAsFactors = TRUE) %>%
+  rename("Participant" = "SubjID", "Item" = "Name") %>%
   select(Participant, Condition, GenderRating, 
          Item, Male, Female, Other)
 str(exp4_d)
@@ -76,8 +68,8 @@ most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
 ``` r
-exp4_d %<>% mutate(GenderRatingCentered=
-             scale(GenderRating, scale=FALSE))
+exp4_d %<>% mutate(GenderRatingCentered =
+             scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions, now weighted to account for uneven
@@ -103,18 +95,18 @@ contrasts(exp4_d$Condition)
 Responses by condition.
 
 ``` r
-exp4_d %<>% mutate(ResponseAll=case_when(
-  Male==1 ~ "Male",
-  Female==1 ~ "Female", 
-  Other==1 ~ "Other"))
+exp4_d %<>% mutate(ResponseAll = case_when(
+  Male   == 1 ~ "Male",
+  Female == 1 ~ "Female", 
+  Other  == 1 ~ "Other"))
 
 exp4_d_count <- exp4_d %>% 
   group_by(Condition, ResponseAll) %>%
-  summarise(n=n()) %>%
-  pivot_wider(names_from=ResponseAll,
-              values_from=n) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from  = ResponseAll,
+              values_from = n) %>%
   mutate(Female_MaleOther = Female / (Male+Other),
-         Female_Male = Female / Male)
+         Female_Male      = Female / Male)
 
 kable(exp4_d_count)
 ```
@@ -206,9 +198,9 @@ last
 </tbody>
 </table>
 
--   First name condition has second-most (slightly) *female* responses
--   Full name condition has most *female* responses
--   Last name condition has fewest *female* responses
+- First name condition has second-most (slightly) *female* responses
+- Full name condition has most *female* responses
+- Last name condition has fewest *female* responses
 
 # Main Model
 
@@ -226,9 +218,8 @@ the contrast between first and full.
 
 ``` r
 exp4_m_all <- glmer(
-  Female ~ Condition * GenderRatingCentered + 
-    (1|Participant) + (1|Item), 
-  data=exp4_d, family=binomial)
+  Female ~ Condition * GenderRatingCentered + (1|Participant) + (1|Item), 
+  data = exp4_d, family = binomial)
 summary(exp4_m_all)
 ```
 
@@ -244,7 +235,7 @@ summary(exp4_m_all)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -3.4531 -0.5754 -0.2627  0.5724  5.4528 
+    ## -3.4531 -0.5754 -0.2627  0.5724  5.4529 
     ## 
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
@@ -254,12 +245,12 @@ summary(exp4_m_all)
     ## 
     ## Fixed effects:
     ##                                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                     -0.25605    0.08160  -3.138 0.001703 ** 
-    ## Condition1                       0.12636    0.06170   2.048 0.040558 *  
-    ## Condition2                       0.06835    0.07245   0.943 0.345480    
-    ## GenderRatingCentered             0.76407    0.04590  16.648  < 2e-16 ***
+    ## (Intercept)                     -0.25606    0.08161  -3.138 0.001703 ** 
+    ## Condition1                       0.12636    0.06170   2.048 0.040565 *  
+    ## Condition2                       0.06835    0.07245   0.943 0.345471    
+    ## GenderRatingCentered             0.76408    0.04590  16.647  < 2e-16 ***
     ## Condition1:GenderRatingCentered  0.13147    0.03451   3.809 0.000139 ***
-    ## Condition2:GenderRatingCentered -0.10288    0.04204  -2.447 0.014404 *  
+    ## Condition2:GenderRatingCentered -0.10288    0.04204  -2.447 0.014401 *  
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -271,13 +262,13 @@ summary(exp4_m_all)
     ## Cndtn1:GnRC  0.001 -0.121  0.016  0.035       
     ## Cndtn2:GnRC  0.011  0.016 -0.112 -0.030 -0.046
 
--   Less likely to recall character as female overall
+- Less likely to recall character as female overall
 
--   More likely to recall character as female in the First and Full Name
-    conditions than in the Last Name condition
+- More likely to recall character as female in the First and Full Name
+  conditions than in the Last Name condition
 
--   More likely to recall character as female as first names become more
-    feminine
+- More likely to recall character as female as first names become more
+  feminine
 
 **Double check the directions of the interactions:**
 
@@ -287,28 +278,23 @@ Dummy code to get the gender rating effect for just the First and Full
 Name conditions.
 
 ``` r
-exp4_d$FFdummy = as.numeric(exp4_d$Condition) 
-exp4_d$FFdummy[exp4_d$FFdummy == 1] <- 0
-exp4_d$FFdummy[exp4_d$FFdummy == 2] <- 0
-exp4_d$FFdummy[exp4_d$FFdummy == 3] <- 1
-with(exp4_d, tapply(FFdummy, list(Condition), mean))
-```
+exp4_d %<>% mutate(Condition_FF = case_when(
+  Condition == "first" ~ 0,
+  Condition == "full"  ~ 0,
+  Condition == "last"  ~ 1))
+exp4_d$Condition_FF %<>% as.factor()
 
-    ## first  full  last 
-    ##     0     0     1
-
-``` r
-exp4_m_genderRatingFF <- glmer(
-  Female ~ FFdummy * GenderRatingCentered + 
+exp4_m_all_FF <- glmer(
+  Female ~ Condition_FF * GenderRatingCentered + 
     (1|Participant) + (1|Item),
-  data=exp4_d, family=binomial)
-summary(exp4_m_genderRatingFF)
+  data = exp4_d, family = binomial)
+summary(exp4_m_all_FF)
 ```
 
     ## Generalized linear mixed model fit by maximum likelihood (Laplace
     ##   Approximation) [glmerMod]
     ##  Family: binomial  ( logit )
-    ## Formula: Female ~ FFdummy * GenderRatingCentered + (1 | Participant) +  
+    ## Formula: Female ~ Condition_FF * GenderRatingCentered + (1 | Participant) +  
     ##     (1 | Item)
     ##    Data: exp4_d
     ## 
@@ -326,46 +312,41 @@ summary(exp4_m_genderRatingFF)
     ## Number of obs: 8771, groups:  Participant, 1253; Item, 63
     ## 
     ## Fixed effects:
-    ##                              Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                  -0.21216    0.08437  -2.515 0.011917 *  
-    ## FFdummy                      -0.12797    0.06164  -2.076 0.037889 *  
-    ## GenderRatingCentered          0.80513    0.04766  16.893  < 2e-16 ***
-    ## FFdummy:GenderRatingCentered -0.12944    0.03446  -3.756 0.000172 ***
+    ##                                    Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)                        -0.21216    0.08437  -2.515 0.011917 *  
+    ## Condition_FF1                      -0.12797    0.06164  -2.076 0.037889 *  
+    ## GenderRatingCentered                0.80513    0.04766  16.893  < 2e-16 ***
+    ## Condition_FF1:GenderRatingCentered -0.12944    0.03446  -3.756 0.000172 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Correlation of Fixed Effects:
-    ##             (Intr) FFdmmy GndrRC
-    ## FFdummy     -0.253              
+    ##             (Intr) Cn_FF1 GndrRC
+    ## Conditn_FF1 -0.253              
     ## GndrRtngCnt -0.032  0.026       
-    ## FFdmmy:GnRC  0.027 -0.120 -0.272
+    ## Cnd_FF1:GRC  0.027 -0.120 -0.272
 
 Then dummy code to get the gender rating effect just in the Last Name
 condition.
 
 ``` r
-exp4_d$Ldummy = as.numeric(exp4_d$Condition) 
-exp4_d$Ldummy[exp4_d$Ldummy == 1] <- 1
-exp4_d$Ldummy[exp4_d$Ldummy == 2] <- 1
-exp4_d$Ldummy[exp4_d$Ldummy == 3] <- 0
-with(exp4_d, tapply(Ldummy, list(Condition), mean))
-```
+exp4_d %<>% mutate(Condition_Last = case_when(
+  Condition == "first" ~ 1,
+  Condition == "full"  ~ 1,
+  Condition == "last"  ~ 0))
+exp4_d$Condition_Last %<>% as.factor()
 
-    ## first  full  last 
-    ##     1     1     0
-
-``` r
-exp4_m_genderRatingL <- glmer(
-  Female ~ Ldummy * GenderRatingCentered + 
+exp4_m_all_L <- glmer(
+  Female ~ Condition_Last * GenderRatingCentered +
     (1|Participant) + (1|Item),
-  data=exp4_d, family=binomial)
-summary(exp4_m_genderRatingL)
+  data = exp4_d, family = binomial)
+summary(exp4_m_all_L)
 ```
 
     ## Generalized linear mixed model fit by maximum likelihood (Laplace
     ##   Approximation) [glmerMod]
     ##  Family: binomial  ( logit )
-    ## Formula: Female ~ Ldummy * GenderRatingCentered + (1 | Participant) +  
+    ## Formula: Female ~ Condition_Last * GenderRatingCentered + (1 | Participant) +  
     ##     (1 | Item)
     ##    Data: exp4_d
     ## 
@@ -383,37 +364,33 @@ summary(exp4_m_genderRatingL)
     ## Number of obs: 8771, groups:  Participant, 1253; Item, 63
     ## 
     ## Fixed effects:
-    ##                             Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                 -0.34013    0.09100  -3.738 0.000186 ***
-    ## Ldummy                       0.12797    0.06164   2.076 0.037888 *  
-    ## GenderRatingCentered         0.67569    0.05066  13.338  < 2e-16 ***
-    ## Ldummy:GenderRatingCentered  0.12944    0.03446   3.757 0.000172 ***
+    ##                                      Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)                          -0.34013    0.09101  -3.737 0.000186 ***
+    ## Condition_Last1                       0.12797    0.06164   2.076 0.037896 *  
+    ## GenderRatingCentered                  0.67569    0.05066  13.338  < 2e-16 ***
+    ## Condition_Last1:GenderRatingCentered  0.12944    0.03446   3.757 0.000172 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Correlation of Fixed Effects:
-    ##             (Intr) Ldummy GndrRC
-    ## Ldummy      -0.442              
+    ##             (Intr) Cnd_L1 GndrRC
+    ## Condtn_Lst1 -0.442              
     ## GndrRtngCnt -0.049  0.057       
-    ## Ldmmy:GndRC  0.056 -0.120 -0.425
+    ## Cndt_L1:GRC  0.056 -0.120 -0.425
 
 ``` r
-exp4_m_genderRatingFF %>% 
-  tidy() %>%
-  filter(term=="GenderRatingCentered") %>%
-  select(estimate) %>% as.numeric()
+exp4_m_all_FF %>% tidy() %>%
+  filter(term == "GenderRatingCentered") %>% pull(estimate)
 ```
 
     ## [1] 0.8051317
 
 ``` r
-exp4_m_genderRatingL %>% 
-  tidy() %>%
-  filter(term=="GenderRatingCentered") %>%
-  select(estimate) %>% as.numeric()
+exp4_m_all_L %>% tidy() %>%
+  filter(term == "GenderRatingCentered") %>% pull(estimate)
 ```
 
-    ## [1] 0.6756907
+    ## [1] 0.6756906
 
 Interaction indicates Gender Rating has a larger effect in the First and
 Full Name conditions (0.81) than in the Last Name condition (0.67). This
@@ -427,28 +404,23 @@ Dummy code to get the gender rating effect for just the First Name
 condition.
 
 ``` r
-exp4_d$FirstDummy = as.numeric(exp4_d$Condition) 
-exp4_d$FirstDummy[exp4_d$FirstDummy == 1] <- 0
-exp4_d$FirstDummy[exp4_d$FirstDummy == 2] <- 1
-exp4_d$FirstDummy[exp4_d$FirstDummy == 3] <- 1
-with(exp4_d, tapply(FirstDummy, list(Condition), mean)) 
-```
+exp4_d %<>% mutate(Condition_First = case_when(
+  Condition == "first" ~ 0,
+  Condition == "full"  ~ 1,
+  Condition == "last"  ~ 1))
+exp4_d$Condition_First %<>% as.factor()
 
-    ## first  full  last 
-    ##     0     1     1
-
-``` r
-exp4_m_genderRatingFirst <- glmer(
-  Female ~ FirstDummy * GenderRatingCentered + 
+exp4_m_all_first <- glmer(
+  Female ~ Condition_First * GenderRatingCentered +
     (1|Participant) + (1|Item),
-  data=exp4_d, family=binomial)
-summary(exp4_m_genderRatingFirst)
+  data = exp4_d, family = binomial)
+summary(exp4_m_all_first)
 ```
 
     ## Generalized linear mixed model fit by maximum likelihood (Laplace
     ##   Approximation) [glmerMod]
     ##  Family: binomial  ( logit )
-    ## Formula: Female ~ FirstDummy * GenderRatingCentered + (1 | Participant) +  
+    ## Formula: Female ~ Condition_First * GenderRatingCentered + (1 | Participant) +  
     ##     (1 | Item)
     ##    Data: exp4_d
     ## 
@@ -466,46 +438,41 @@ summary(exp4_m_genderRatingFirst)
     ## Number of obs: 8771, groups:  Participant, 1253; Item, 63
     ## 
     ## Fixed effects:
-    ##                                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                     -0.24885    0.09227  -2.697    0.007 ** 
-    ## FirstDummy                      -0.01314    0.06304  -0.208    0.835    
-    ## GenderRatingCentered             0.85944    0.05280  16.277  < 2e-16 ***
-    ## FirstDummy:GenderRatingCentered -0.14454    0.03661  -3.948 7.88e-05 ***
+    ##                                       Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)                           -0.24885    0.09227  -2.697  0.00699 ** 
+    ## Condition_First1                      -0.01315    0.06303  -0.209  0.83475    
+    ## GenderRatingCentered                   0.85944    0.05280  16.277  < 2e-16 ***
+    ## Condition_First1:GenderRatingCentered -0.14454    0.03661  -3.948 7.88e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Correlation of Fixed Effects:
-    ##             (Intr) FrstDm GndrRC
-    ## FirstDummy  -0.468              
+    ##             (Intr) Cnd_F1 GndrRC
+    ## Cndtn_Frst1 -0.468              
     ## GndrRtngCnt -0.055  0.065       
-    ## FrstDmm:GRC  0.064 -0.125 -0.497
+    ## Cndt_F1:GRC  0.064 -0.125 -0.497
 
 Dummy code to get the gender rating effect for just the Full Name
 condition.
 
 ``` r
-exp4_d$FullDummy = as.numeric(exp4_d$Condition) 
-exp4_d$FullDummy[exp4_d$FullDummy == 1] <- 1
-exp4_d$FullDummy[exp4_d$FullDummy == 2] <- 0
-exp4_d$FullDummy[exp4_d$FullDummy == 3] <- 1
-with(exp4_d, tapply(FullDummy, list(Condition), mean)) 
-```
+exp4_d %<>% mutate(Condition_Full = case_when(
+  Condition == "first" ~ 1,
+  Condition == "full"  ~ 0,
+  Condition == "last"  ~ 1))
+exp4_d$Condition_Full %<>% as.factor()
 
-    ## first  full  last 
-    ##     1     0     1
-
-``` r
-exp4_m_genderRatingFull <- glmer(
-  Female ~ FullDummy * GenderRatingCentered + 
+exp4_m_all_full <- glmer(
+  Female ~ Condition_Full * GenderRatingCentered + 
     (1|Participant) + (1|Item),
-  data=exp4_d, family=binomial)
-summary(exp4_m_genderRatingFull)
+  data = exp4_d, family = binomial)
+summary(exp4_m_all_full)
 ```
 
     ## Generalized linear mixed model fit by maximum likelihood (Laplace
     ##   Approximation) [glmerMod]
     ##  Family: binomial  ( logit )
-    ## Formula: Female ~ FullDummy * GenderRatingCentered + (1 | Participant) +  
+    ## Formula: Female ~ Condition_Full * GenderRatingCentered + (1 | Participant) +  
     ##     (1 | Item)
     ##    Data: exp4_d
     ## 
@@ -523,37 +490,33 @@ summary(exp4_m_genderRatingFull)
     ## Number of obs: 8771, groups:  Participant, 1253; Item, 63
     ## 
     ## Fixed effects:
-    ##                                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                    -0.180226   0.091383  -1.972   0.0486 *  
-    ## FullDummy                      -0.114771   0.062003  -1.851   0.0642 .  
-    ## GenderRatingCentered            0.755871   0.051388  14.709   <2e-16 ***
-    ## FullDummy:GenderRatingCentered  0.006063   0.035112   0.173   0.8629    
+    ##                                       Estimate Std. Error z value Pr(>|z|)    
+    ## (Intercept)                          -0.180223   0.091385  -1.972   0.0486 *  
+    ## Condition_Full1                      -0.114778   0.062004  -1.851   0.0642 .  
+    ## GenderRatingCentered                  0.755873   0.051389  14.709   <2e-16 ***
+    ## Condition_Full1:GenderRatingCentered  0.006064   0.035112   0.173   0.8629    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## Correlation of Fixed Effects:
-    ##             (Intr) FllDmm GndrRC
-    ## FullDummy   -0.450              
+    ##             (Intr) Cnd_F1 GndrRC
+    ## Condtn_Fll1 -0.450              
     ## GndrRtngCnt -0.035  0.038       
-    ## FllDmmy:GRC  0.038 -0.103 -0.451
+    ## Cndt_F1:GRC  0.038 -0.104 -0.451
 
 ``` r
-exp4_m_genderRatingFirst %>%
-  tidy() %>%
-  filter(term=="GenderRatingCentered") %>%
-  select(estimate) %>% as.numeric()
+exp4_m_all_first %>% tidy() %>%
+  filter(term == "GenderRatingCentered") %>% pull(estimate)
 ```
 
-    ## [1] 0.8594426
+    ## [1] 0.8594397
 
 ``` r
-exp4_m_genderRatingFull %>%
-  tidy() %>%
-  filter(term=="GenderRatingCentered") %>%
-  select(estimate) %>% as.numeric()
+exp4_m_all_full %>% tidy() %>%
+  filter(term == "GenderRatingCentered") %>% pull(estimate)
 ```
 
-    ## [1] 0.7558714
+    ## [1] 0.7558726
 
 The effect of name gender rating is larger in the First Name condition
 (0.86) than in the Full Name condition (0.76).
@@ -561,26 +524,16 @@ The effect of name gender rating is larger in the First Name condition
 ## Odds Ratios: Intercept
 
 ``` r
-exp4_est_all_intercept <- exp4_m_all %>% 
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp4_est_all_intercept)
+exp(get_intercept(exp4_m_all))
 ```
 
-    ## [1] 0.7741026
+    ## [1] 0.7740991
 
 ``` r
-exp(-exp4_est_all_intercept)
+exp(-get_intercept(exp4_m_all))
 ```
 
-    ## [1] 1.291818
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp4_OR_all_I <- exp(exp4_est_all_intercept) %>% round(2)
-```
+    ## [1] 1.291824
 
 0.77x less likely to recall as female overall (or: 1.29x more likely to
 recall as male overall), p\<.01
@@ -588,42 +541,24 @@ recall as male overall), p\<.01
 ## Odds Ratios: Last vs First+Full
 
 ``` r
-exp4_est_all_LFF <- exp4_m_all %>% 
-  tidy() %>%
-  filter(term=="Condition1") %>%
-  select(estimate) %>% as.numeric()
-exp(exp4_est_all_LFF)
+exp4_m_all %>% tidy() %>% filter(term == "Condition1") %>%
+  pull(estimate) %>% exp()
 ```
 
-    ## [1] 1.134694
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp4_OR_all_LFF <- exp(exp4_est_all_LFF) %>% 
-  round(2)
-```
+    ## [1] 1.134692
 
 1.13x more likely to recall as female in First + Full compared to Last,
 p\<.05
 
 ## Odds Ratios: Last Only
 
-Dummy code with Last Name as 0, so that intercept is the Last Name
-condition only.
+Model with just Condition (to more directly compare to Exp 2).
 
 ``` r
-exp4_d %<>% mutate(Condition_Last=case_when(
-  Condition=="first" ~ 1,
-  Condition=="full" ~ 1,
-  Condition=="last" ~ 0))
-exp4_d$Condition_Last %<>% as.factor()
-```
-
-``` r
-exp4_m_all_L <- glmer(
+exp4_m_cond_L <- glmer(
   Female ~ Condition_Last + (1|Participant) + (1|Item), 
-  data=exp4_d, family=binomial)
-summary(exp4_m_all_L)
+  data = exp4_d, family = binomial)
+summary(exp4_m_cond_L)
 ```
 
     ## Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -637,17 +572,17 @@ summary(exp4_m_all_L)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -3.0475 -0.5940 -0.2737  0.5750  4.4731 
+    ## -3.0475 -0.5940 -0.2737  0.5750  4.4732 
     ## 
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
-    ##  Participant (Intercept) 0.196    0.4428  
-    ##  Item        (Intercept) 2.244    1.4981  
+    ##  Participant (Intercept) 0.1961   0.4428  
+    ##  Item        (Intercept) 2.2443   1.4981  
     ## Number of obs: 8771, groups:  Participant, 1253; Item, 63
     ## 
     ## Fixed effects:
     ##                 Estimate Std. Error z value Pr(>|z|)  
-    ## (Intercept)     -0.36280    0.19566  -1.854   0.0637 .
+    ## (Intercept)     -0.36280    0.19565  -1.854   0.0637 .
     ## Condition_Last1  0.15844    0.06154   2.574   0.0100 *
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -657,27 +592,16 @@ summary(exp4_m_all_L)
     ## Condtn_Lst1 -0.211
 
 ``` r
-exp4_est_all_L <- exp4_m_all_L %>%
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp4_est_all_L)
+exp(get_intercept(exp4_m_cond_L))
 ```
 
-    ## [1] 0.695725
+    ## [1] 0.695726
 
 ``` r
-exp(-exp4_est_all_L)
+exp(-get_intercept(exp4_m_cond_L))
 ```
 
-    ## [1] 1.437349
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp4_OR_all_L <- exp(exp4_est_all_L) %>% 
-  round(2)
-```
+    ## [1] 1.437347
 
 0.17x times less likely to recall as female in the Last Name condition
 (or: 5.72x more likely to recall as male in the Last Name condition),
@@ -686,21 +610,14 @@ p=0.06
 ## Odds Ratios: First and Full Only
 
 Dummy code with First and Full Name as 0, so that intercept is average
-for these two conditions.
+for these two conditions. Model with just Condition (to more directly
+compare to Exp 2).
 
 ``` r
-exp4_d %<>% mutate(Condition_FF=case_when(
-  Condition=="first" ~ 0,
-  Condition=="full" ~ 0,
-  Condition=="last" ~ 1))
-exp4_d$Condition_FF %<>% as.factor()
-```
-
-``` r
-exp4_m_all_FF <- glmer(
+exp4_m_cond_FF <- glmer(
   Female ~ Condition_FF + (1|Participant) + (1|Item), 
-  data=exp4_d, family=binomial)
-summary(exp4_m_all_FF)
+  data = exp4_d, family = binomial)
+summary(exp4_m_cond_FF)
 ```
 
     ## Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -724,7 +641,7 @@ summary(exp4_m_all_FF)
     ## 
     ## Fixed effects:
     ##               Estimate Std. Error z value Pr(>|z|)  
-    ## (Intercept)   -0.20437    0.19227  -1.063    0.288  
+    ## (Intercept)   -0.20436    0.19231  -1.063    0.288  
     ## Condition_FF1 -0.15843    0.06154  -2.574    0.010 *
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -734,27 +651,16 @@ summary(exp4_m_all_FF)
     ## Conditn_FF1 -0.105
 
 ``` r
-exp4_est_all_FF <- exp4_m_all_FF %>%
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp4_est_all_FF)
+exp(get_intercept(exp4_m_cond_FF))
 ```
 
-    ## [1] 0.8151622
+    ## [1] 0.8151685
 
 ``` r
-exp(-exp4_est_all_FF)
+exp(-get_intercept(exp4_m_cond_FF))
 ```
 
-    ## [1] 1.22675
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp4_OR_all_FF <- exp(exp4_est_all_FF) %>% 
-  round(2)
-```
+    ## [1] 1.22674
 
 0.82x less likely to recall as female in First and Full Name conditions
 (or: 1.23x more likely to recall as male in First and Full Name

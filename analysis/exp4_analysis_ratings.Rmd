@@ -14,10 +14,9 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-library(magrittr)
-library(tidyr)
-library(dplyr)
+library(tidyverse)
 options(dplyr.summarise.inform = FALSE)
+library(magrittr)
 library(lme4)
 library(lmerTest)
 library(buildmer)
@@ -26,27 +25,20 @@ library(kableExtra)
 
 # Setup
 
--   Variable names:
+Variable names:
 
-    -   Experiment: exp4
-
-    -   Type
-
-        -   d = data
-        -   m = model
-        -   est = log odds estimate from model
-        -   OR = odds ratio converted from est
-
-    -   Analysis
-
-        -   Lik = likability ratings
-        -   Acc = accomplishment ratings
-        -   Imp = importance ratings
+-   Experiment: exp4\_
+-   Data (\_d\_)
+    -   d = main df
+-   Models (\_m\_)
+    -   like = Likeability ratings
+    -   acc = Accomplishment ratings
+    -   imp = Importance ratings
 
 ```{r}
 exp4_d <- read.csv("../data/exp4_data.csv", 
-                   stringsAsFactors=TRUE) %>%
-  rename("Participant"="SubjID", "Item"="Name") %>%
+                   stringsAsFactors = TRUE) %>%
+  rename("Participant" = "SubjID", "Item" = "Name") %>%
   select(Participant, Condition, 
          GenderRating, Item, Male, Female, Other,
          Likeable, Accomplished, Important)
@@ -58,8 +50,8 @@ most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
 ```{r}
-exp4_d %<>% mutate(GenderRatingCentered=
-                     scale(GenderRating, scale=FALSE))
+exp4_d %<>% mutate(GenderRatingCentered =
+            scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions, now weighted to account for uneven
@@ -81,17 +73,14 @@ L/A/I, to make interpreting models easier, then mean-center.
 ```{r}
 exp4_d %<>% mutate(
   LikeableFlip = recode(Likeable, 
-      '1'=7, '2'=6, '3'=5, '4'=4, '5'=3, '6'=2, '7'=1),
+      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
   AccomplishedFlip = recode(Accomplished,
-      '1'=7, '2'=6, '3'=5, '4'=4, '5'=3, '6'=2, '7'=1),
+      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
   ImportantFlip = recode(Important,
-      '1'=7, '2'=6, '3'=5, '4'=4, '5'=3, '6'=2, '7'=1),
-  LikeableCentered = scale(
-    LikeableFlip, scale=FALSE),
-  AccomplishedCentered = scale(
-    AccomplishedFlip, scale=FALSE),
-  ImportantCentered = scale(
-    ImportantFlip, scale=FALSE))
+      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
+  LikeableCentered = scale(LikeableFlip, scale = FALSE),
+  AccomplishedCentered = scale(AccomplishedFlip, scale = FALSE),
+  ImportantCentered = scale(ImportantFlip, scale = FALSE))
 
 str(exp4_d)
 ```
@@ -111,14 +100,14 @@ character is to be recalled as female, as opposed to male or other? The
 maximal model includes random intercepts by item, but not by
 participant.
 
-```{r}
-exp4_m_lik <- buildmer(
-  formula=(Female ~ Condition * GenderRatingCentered * 
-           LikeableCentered + (1|Participant) + (1|Item)),
-  data=exp4_d, family=binomial, 
-  buildmerControl(direction="order", quiet=TRUE))
+```{r cache=TRUE}
+exp4_m_like <- buildmer(
+  formula = Female ~ Condition * GenderRatingCentered * 
+            LikeableCentered + (1|Participant) + (1|Item),
+  data = exp4_d, family = binomial, 
+  buildmerControl(direction = "order", quiet = TRUE))
 
-summary(exp4_m_lik)
+summary(exp4_m_like)
 ```
 
 -   Characters who are rated more Likeable are more likely to be
@@ -146,12 +135,12 @@ character is to be recalled as female, as opposed to male or other? The
 maximal model includes random intercepts by item, but not by
 participant.
 
-```{r}
+```{r cache=TRUE}
 exp4_m_acc <- buildmer(
-  formula=(Female ~ Condition * GenderRatingCentered * 
-    AccomplishedCentered + (1|Participant) + (1|Item)),
-  data=exp4_d, family=binomial, 
-  buildmerControl(direction="order", quiet=TRUE))
+  formula = Female ~ Condition * GenderRatingCentered * 
+            AccomplishedCentered + (1|Participant) + (1|Item),
+  data = exp4_d, family = binomial, 
+  buildmerControl(direction = "order", quiet = TRUE))
 
 summary(exp4_m_acc)
 ```
@@ -181,12 +170,12 @@ character is to be recalled as female, as opposed to male or other? The
 maximal model includes random intercepts by item, but not by
 participant.
 
-```{r}
+```{r cache=TRUE}
 exp4_m_imp <- buildmer(
-  formula=(Female ~ Condition * GenderRatingCentered * 
-           ImportantCentered + (1|Participant) + (1|Item)),
-  data=exp4_d, family=binomial, 
- buildmerControl(direction="order", quiet=TRUE))
+  formula = Female ~ Condition * GenderRatingCentered * 
+            ImportantCentered + (1|Participant) + (1|Item),
+  data = exp4_d, family = binomial, 
+ buildmerControl(direction = "order", quiet = TRUE))
 
 summary(exp4_m_imp)
 ```

@@ -14,53 +14,45 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-library(magrittr)
-library(tidyr)
-library(dplyr)
+library(tidyverse)
 options(dplyr.summarise.inform = FALSE)
+library(magrittr)
 library(lme4)
 library(lmerTest)
 library(kableExtra)
 library(broom.mixed)
+library(insight)
 ```
 
 # Setup
 
--   Variable names:
+Variable names:
 
-    -   Experiment: exp4
-
-    -   Type
-
-        -   d = data
-        -   m = model
-        -   est = log odds estimate from model
-        -   OR = odds ratio converted from est
-
-    -   Analysis
-
-        -   count =sums of response types
-        -   cond = effect of Condition (Last vs First+Full)
-        -   nameGender = effects of Condition (First vs Full) and Name
-            Gender Rating
-
-    -   Subset
-
-        -   all = including *other* responses
-
-        -   noOther = excluding *other* responses
-
-        -   FF = First and Full Name conditions only
-
-        -   Last = Last Name condition only
+-   Experiment: exp4\_
+-   Data (\_d\_)
+    -   d = main df
+    -   count =sums of response types
+-   Models (\_m\_)
+    -   count =sums of response types
+    -   all = effect of Condition and Name Gender Rating, including
+        *other* responses
+    -   cond = effect of Condition only
+    -   FF = dummy coded with First + Full Name conditions as 0, Last
+        Name condition as 1
+    -   L = dummy coded with Last Name condition as 0, First + Full Name
+        conditions as 1
+    -   first = dummy coded with First Name condition as 0, Full Name
+        and Last Name conditions as 1
+    -   full = dummy coded with Full Name condition as 0, First Name and
+        Last Name conditions as 1
 
 Load data and select columns used in model. See data/exp4_data_about.txt
 for more details.
 
 ```{r}
 exp4_d <- read.csv("../data/exp4_data.csv",
-                   stringsAsFactors=TRUE) %>%
-  rename("Participant"="SubjID", "Item"="Name") %>%
+                   stringsAsFactors = TRUE) %>%
+  rename("Participant" = "SubjID", "Item" = "Name") %>%
   select(Participant, Condition, GenderRating, 
          Item, Male, Female, Other)
 str(exp4_d)
@@ -71,8 +63,8 @@ most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
 ```{r}
-exp4_d %<>% mutate(GenderRatingCentered=
-             scale(GenderRating, scale=FALSE))
+exp4_d %<>% mutate(GenderRatingCentered =
+             scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions, now weighted to account for uneven
@@ -93,18 +85,18 @@ contrasts(exp4_d$Condition)
 Responses by condition.
 
 ```{r}
-exp4_d %<>% mutate(ResponseAll=case_when(
-  Male==1 ~ "Male",
-  Female==1 ~ "Female", 
-  Other==1 ~ "Other"))
+exp4_d %<>% mutate(ResponseAll = case_when(
+  Male   == 1 ~ "Male",
+  Female == 1 ~ "Female", 
+  Other  == 1 ~ "Other"))
 
 exp4_d_count <- exp4_d %>% 
   group_by(Condition, ResponseAll) %>%
-  summarise(n=n()) %>%
-  pivot_wider(names_from=ResponseAll,
-              values_from=n) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from  = ResponseAll,
+              values_from = n) %>%
   mutate(Female_MaleOther = Female / (Male+Other),
-         Female_Male = Female / Male)
+         Female_Male      = Female / Male)
 
 kable(exp4_d_count)
 ```
@@ -129,9 +121,8 @@ the contrast between first and full.
 
 ```{r}
 exp4_m_all <- glmer(
-  Female ~ Condition * GenderRatingCentered + 
-    (1|Participant) + (1|Item), 
-  data=exp4_d, family=binomial)
+  Female ~ Condition * GenderRatingCentered + (1|Participant) + (1|Item), 
+  data = exp4_d, family = binomial)
 summary(exp4_m_all)
 ```
 
@@ -151,46 +142,42 @@ Dummy code to get the gender rating effect for just the First and Full
 Name conditions.
 
 ```{r}
-exp4_d$FFdummy = as.numeric(exp4_d$Condition) 
-exp4_d$FFdummy[exp4_d$FFdummy == 1] <- 0
-exp4_d$FFdummy[exp4_d$FFdummy == 2] <- 0
-exp4_d$FFdummy[exp4_d$FFdummy == 3] <- 1
-with(exp4_d, tapply(FFdummy, list(Condition), mean))
+exp4_d %<>% mutate(Condition_FF = case_when(
+  Condition == "first" ~ 0,
+  Condition == "full"  ~ 0,
+  Condition == "last"  ~ 1))
+exp4_d$Condition_FF %<>% as.factor()
 
-exp4_m_genderRatingFF <- glmer(
-  Female ~ FFdummy * GenderRatingCentered + 
+exp4_m_all_FF <- glmer(
+  Female ~ Condition_FF * GenderRatingCentered + 
     (1|Participant) + (1|Item),
-  data=exp4_d, family=binomial)
-summary(exp4_m_genderRatingFF)
+  data = exp4_d, family = binomial)
+summary(exp4_m_all_FF)
 ```
 
 Then dummy code to get the gender rating effect just in the Last Name
 condition.
 
 ```{r}
-exp4_d$Ldummy = as.numeric(exp4_d$Condition) 
-exp4_d$Ldummy[exp4_d$Ldummy == 1] <- 1
-exp4_d$Ldummy[exp4_d$Ldummy == 2] <- 1
-exp4_d$Ldummy[exp4_d$Ldummy == 3] <- 0
-with(exp4_d, tapply(Ldummy, list(Condition), mean))
+exp4_d %<>% mutate(Condition_Last = case_when(
+  Condition == "first" ~ 1,
+  Condition == "full"  ~ 1,
+  Condition == "last"  ~ 0))
+exp4_d$Condition_Last %<>% as.factor()
 
-exp4_m_genderRatingL <- glmer(
-  Female ~ Ldummy * GenderRatingCentered + 
+exp4_m_all_L <- glmer(
+  Female ~ Condition_Last * GenderRatingCentered +
     (1|Participant) + (1|Item),
-  data=exp4_d, family=binomial)
-summary(exp4_m_genderRatingL)
+  data = exp4_d, family = binomial)
+summary(exp4_m_all_L)
 ```
 
 ```{r}
-exp4_m_genderRatingFF %>% 
-  tidy() %>%
-  filter(term=="GenderRatingCentered") %>%
-  select(estimate) %>% as.numeric()
+exp4_m_all_FF %>% tidy() %>%
+  filter(term == "GenderRatingCentered") %>% pull(estimate)
 
-exp4_m_genderRatingL %>% 
-  tidy() %>%
-  filter(term=="GenderRatingCentered") %>%
-  select(estimate) %>% as.numeric()
+exp4_m_all_L %>% tidy() %>%
+  filter(term == "GenderRatingCentered") %>% pull(estimate)
 ```
 
 Interaction indicates Gender Rating has a larger effect in the First and
@@ -205,46 +192,42 @@ Dummy code to get the gender rating effect for just the First Name
 condition.
 
 ```{r}
-exp4_d$FirstDummy = as.numeric(exp4_d$Condition) 
-exp4_d$FirstDummy[exp4_d$FirstDummy == 1] <- 0
-exp4_d$FirstDummy[exp4_d$FirstDummy == 2] <- 1
-exp4_d$FirstDummy[exp4_d$FirstDummy == 3] <- 1
-with(exp4_d, tapply(FirstDummy, list(Condition), mean)) 
+exp4_d %<>% mutate(Condition_First = case_when(
+  Condition == "first" ~ 0,
+  Condition == "full"  ~ 1,
+  Condition == "last"  ~ 1))
+exp4_d$Condition_First %<>% as.factor()
 
-exp4_m_genderRatingFirst <- glmer(
-  Female ~ FirstDummy * GenderRatingCentered + 
+exp4_m_all_first <- glmer(
+  Female ~ Condition_First * GenderRatingCentered +
     (1|Participant) + (1|Item),
-  data=exp4_d, family=binomial)
-summary(exp4_m_genderRatingFirst)
+  data = exp4_d, family = binomial)
+summary(exp4_m_all_first)
 ```
 
 Dummy code to get the gender rating effect for just the Full Name
 condition.
 
 ```{r}
-exp4_d$FullDummy = as.numeric(exp4_d$Condition) 
-exp4_d$FullDummy[exp4_d$FullDummy == 1] <- 1
-exp4_d$FullDummy[exp4_d$FullDummy == 2] <- 0
-exp4_d$FullDummy[exp4_d$FullDummy == 3] <- 1
-with(exp4_d, tapply(FullDummy, list(Condition), mean)) 
+exp4_d %<>% mutate(Condition_Full = case_when(
+  Condition == "first" ~ 1,
+  Condition == "full"  ~ 0,
+  Condition == "last"  ~ 1))
+exp4_d$Condition_Full %<>% as.factor()
 
-exp4_m_genderRatingFull <- glmer(
-  Female ~ FullDummy * GenderRatingCentered + 
+exp4_m_all_full <- glmer(
+  Female ~ Condition_Full * GenderRatingCentered + 
     (1|Participant) + (1|Item),
-  data=exp4_d, family=binomial)
-summary(exp4_m_genderRatingFull)
+  data = exp4_d, family = binomial)
+summary(exp4_m_all_full)
 ```
 
 ```{r}
-exp4_m_genderRatingFirst %>%
-  tidy() %>%
-  filter(term=="GenderRatingCentered") %>%
-  select(estimate) %>% as.numeric()
+exp4_m_all_first %>% tidy() %>%
+  filter(term == "GenderRatingCentered") %>% pull(estimate)
 
-exp4_m_genderRatingFull %>%
-  tidy() %>%
-  filter(term=="GenderRatingCentered") %>%
-  select(estimate) %>% as.numeric()
+exp4_m_all_full %>% tidy() %>%
+  filter(term == "GenderRatingCentered") %>% pull(estimate)
 ```
 
 The effect of name gender rating is larger in the First Name condition
@@ -253,16 +236,8 @@ The effect of name gender rating is larger in the First Name condition
 ## Odds Ratios: Intercept
 
 ```{r}
-exp4_est_all_intercept <- exp4_m_all %>% 
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp4_est_all_intercept)
-exp(-exp4_est_all_intercept)
-
-#Save this for the table comparing all 4 experiments
-exp4_OR_all_I <- exp(exp4_est_all_intercept) %>% round(2)
+exp(get_intercept(exp4_m_all))
+exp(-get_intercept(exp4_m_all))
 ```
 
 0.77x less likely to recall as female overall (or: 1.29x more likely to
@@ -271,15 +246,8 @@ recall as male overall), p\<.01
 ## Odds Ratios: Last vs First+Full
 
 ```{r}
-exp4_est_all_LFF <- exp4_m_all %>% 
-  tidy() %>%
-  filter(term=="Condition1") %>%
-  select(estimate) %>% as.numeric()
-exp(exp4_est_all_LFF)
-
-#Save this for the table comparing all 4 experiments
-exp4_OR_all_LFF <- exp(exp4_est_all_LFF) %>% 
-  round(2)
+exp4_m_all %>% tidy() %>% filter(term == "Condition1") %>%
+  pull(estimate) %>% exp()
 ```
 
 1.13x more likely to recall as female in First + Full compared to Last,
@@ -287,36 +255,18 @@ p\<.05
 
 ## Odds Ratios: Last Only
 
-Dummy code with Last Name as 0, so that intercept is the Last Name
-condition only.
+Model with just Condition (to more directly compare to Exp 2).
 
 ```{r}
-exp4_d %<>% mutate(Condition_Last=case_when(
-  Condition=="first" ~ 1,
-  Condition=="full" ~ 1,
-  Condition=="last" ~ 0))
-exp4_d$Condition_Last %<>% as.factor()
-```
-
-```{r}
-exp4_m_all_L <- glmer(
+exp4_m_cond_L <- glmer(
   Female ~ Condition_Last + (1|Participant) + (1|Item), 
-  data=exp4_d, family=binomial)
-summary(exp4_m_all_L)
+  data = exp4_d, family = binomial)
+summary(exp4_m_cond_L)
 ```
 
 ```{r}
-exp4_est_all_L <- exp4_m_all_L %>%
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp4_est_all_L)
-exp(-exp4_est_all_L)
-
-#Save this for the table comparing all 4 experiments
-exp4_OR_all_L <- exp(exp4_est_all_L) %>% 
-  round(2)
+exp(get_intercept(exp4_m_cond_L))
+exp(-get_intercept(exp4_m_cond_L))
 ```
 
 0.17x times less likely to recall as female in the Last Name condition
@@ -326,35 +276,19 @@ p=0.06
 ## Odds Ratios: First and Full Only
 
 Dummy code with First and Full Name as 0, so that intercept is average
-for these two conditions.
+for these two conditions. Model with just Condition (to more directly
+compare to Exp 2).
 
 ```{r}
-exp4_d %<>% mutate(Condition_FF=case_when(
-  Condition=="first" ~ 0,
-  Condition=="full" ~ 0,
-  Condition=="last" ~ 1))
-exp4_d$Condition_FF %<>% as.factor()
-```
-
-```{r}
-exp4_m_all_FF <- glmer(
+exp4_m_cond_FF <- glmer(
   Female ~ Condition_FF + (1|Participant) + (1|Item), 
-  data=exp4_d, family=binomial)
-summary(exp4_m_all_FF)
+  data = exp4_d, family = binomial)
+summary(exp4_m_cond_FF)
 ```
 
 ```{r}
-exp4_est_all_FF <- exp4_m_all_FF %>%
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp4_est_all_FF)
-exp(-exp4_est_all_FF)
-
-#Save this for the table comparing all 4 experiments
-exp4_OR_all_FF <- exp(exp4_est_all_FF) %>% 
-  round(2)
+exp(get_intercept(exp4_m_cond_FF))
+exp(-get_intercept(exp4_m_cond_FF))
 ```
 
 0.82x less likely to recall as female in First and Full Name conditions

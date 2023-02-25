@@ -15,10 +15,9 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(magrittr)
-library(tidyr)
-library(dplyr)
+library(tidyverse)
 options(dplyr.summarise.inform = FALSE)
+library(magrittr)
 library(lme4)
 library(lmerTest)
 library(buildmer)
@@ -28,24 +27,20 @@ library(buildmer)
 
 Variable names:
 
--   Experiment: exp3
--   Type
-    -   d = data
-    -   m = model
-    -   p = plot
-    -   est = log odds estimate from model
-    -   OR = odds ratio converted from est
--   Analysis
-    -   Lik = likability ratings
-    -   Acc = accomplishment ratings
-    -   Imp = importance ratings
+-   Experiment: exp3\_
+-   Data (\_d\_)
+    -   d = main df
+-   Models (\_m\_)
+    -   like = Likeability ratings
+    -   acc = Accomplishment ratings
+    -   imp = Importance ratings
 
 Load data and select columns used in model. See data/exp3_data_about.txt
 for more details.
 
 ```{r}
-exp3_d <- read.csv("../data/exp3_data.csv", stringsAsFactors=TRUE) %>%
-  rename("Participant"="SubjID", "Item"="Name") %>%
+exp3_d <- read.csv("../data/exp3_data.csv", stringsAsFactors = TRUE) %>%
+  rename("Participant" = "SubjID", "Item" = "Name") %>%
   select(Participant, Condition, GenderRating, Item, 
          He, She, Other,
          Likeable, Accomplished, Important)
@@ -57,8 +52,8 @@ most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
 ```{r}
-exp3_d %<>% mutate(GenderRatingCentered=
-  scale(GenderRating, scale=FALSE))
+exp3_d %<>% mutate(GenderRatingCentered =
+  scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions, now weighted to account for uneven
@@ -80,17 +75,14 @@ L/A/I, to make interpreting models easier, then mean-center.
 ```{r}
 exp3_d %<>% mutate(
   LikeableFlip = recode(Likeable, 
-      '1'=7, '2'=6, '3'=5, '4'=4, '5'=3, '6'=2, '7'=1),
+      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
   AccomplishedFlip = recode(Accomplished,
-      '1'=7, '2'=6, '3'=5, '4'=4, '5'=3, '6'=2, '7'=1),
+      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
   ImportantFlip = recode(Important,
-      '1'=7, '2'=6, '3'=5, '4'=4, '5'=3, '6'=2, '7'=1),
-  LikeableCentered = 
-      scale(LikeableFlip, scale=FALSE),
-  AccomplishedCentered = 
-      scale(AccomplishedFlip, scale=FALSE),
-  ImportantCentered = 
-    scale(ImportantFlip, scale=FALSE))
+      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
+  LikeableCentered = scale(LikeableFlip, scale = FALSE),
+  AccomplishedCentered = scale(AccomplishedFlip, scale = FALSE),
+  ImportantCentered = scale(ImportantFlip, scale = FALSE))
 str(exp3_d)
 ```
 
@@ -109,14 +101,14 @@ Does the Likeability rating of the character predict the likelihood of
 includes all interactions, then random intercepts by item but not by
 participant.
 
-```{r}
-exp3_m_lik <- buildmer(
-  formula=(She ~ Condition * GenderRatingCentered * 
-           LikeableCentered + (1|Participant) + (1|Item)),
-  data=exp3_d, family=binomial, 
-  buildmerControl(direction="order", quiet=TRUE))
+```{r cache=TRUE}
+exp3_m_like <- buildmer(
+  formula = She ~ Condition * GenderRatingCentered * 
+            LikeableCentered + (1|Participant) + (1|Item),
+  data = exp3_d, family = binomial, 
+  buildmerControl(direction = "order", quiet = TRUE))
 
-summary(exp3_m_lik)
+summary(exp3_m_like)
 ```
 
 -   Characters who are rated as more Likeable are more likely to be
@@ -137,12 +129,12 @@ of *she* as opposed to *he* and *other* responses? The maximal model
 includes all interactions, then random intercepts by item but not by
 participant.
 
-```{r}
+```{r cache=TRUE}
 exp3_m_acc <- buildmer(
-  formula=(She ~ Condition * GenderRatingCentered * 
-    AccomplishedCentered + (1|Participant) + (1|Item)),
-  data=exp3_d, family=binomial, 
-  buildmerControl(direction="order", quiet=TRUE))
+  formula = She ~ Condition * GenderRatingCentered * 
+            AccomplishedCentered + (1|Participant) + (1|Item),
+  data = exp3_d, family = binomial, 
+  buildmerControl(direction = "order", quiet = TRUE))
 
 summary(exp3_m_acc)
 ```
@@ -170,12 +162,12 @@ Does the Importance rating of the character predict the likelihood of
 includes all interactions, then random intercepts by item but not by
 participant.
 
-```{r}
+```{r cache=TRUE}
 exp3_m_imp <- buildmer(
-  formula=(She ~ Condition * GenderRatingCentered * 
-           ImportantCentered + (1|Participant) + (1|Item)),
-  data=exp3_d, family=binomial, 
-  buildmerControl(direction="order", quiet=TRUE))
+  formula = She ~ Condition * GenderRatingCentered * 
+            ImportantCentered + (1|Participant) + (1|Item),
+  data = exp3_d, family = binomial, 
+  buildmerControl(direction = "order", quiet = TRUE))
 
 summary(exp3_m_imp)
 ```

@@ -1,68 +1,63 @@
 Experiment 3: Main Analyses
 ================
-2022-08-11
+2023-02-24
 
--   <a href="#setup" id="toc-setup">Setup</a>
--   <a href="#data-summary" id="toc-data-summary">Data Summary</a>
--   <a href="#model-1-with-other-responses"
-    id="toc-model-1-with-other-responses">Model 1: With <em>Other</em>
-    Responses</a>
-    -   <a href="#odds-ratios-intercept" id="toc-odds-ratios-intercept">Odds
-        Ratios: Intercept</a>
-    -   <a href="#odds-ratios-last-vs-firstfull"
-        id="toc-odds-ratios-last-vs-firstfull">Odds Ratios: Last vs
-        First+Full</a>
-    -   <a href="#odds-ratios-last-only" id="toc-odds-ratios-last-only">Odds
-        Ratios: Last Only</a>
-    -   <a href="#odds-ratios-first-and-full-only"
-        id="toc-odds-ratios-first-and-full-only">Odds Ratios: First and Full
-        Only</a>
--   <a href="#model-2-without-other-responses"
-    id="toc-model-2-without-other-responses">Model 2: Without <em>Other</em>
-    Responses</a>
-    -   <a href="#odds-ratios-intercept-1" id="toc-odds-ratios-intercept-1">Odds
-        Ratios: Intercept</a>
-    -   <a href="#odds-ratios-last-vs-firstfull-1"
-        id="toc-odds-ratios-last-vs-firstfull-1">Odds Ratios: Last vs
-        First+Full</a>
-    -   <a href="#odds-ratios-last-only-1" id="toc-odds-ratios-last-only-1">Odds
-        Ratios: Last Only</a>
-    -   <a href="#odds-ratios-first-and-full-only-1"
-        id="toc-odds-ratios-first-and-full-only-1">Odds Ratios: First and Full
-        Only</a>
+- <a href="#setup" id="toc-setup">Setup</a>
+- <a href="#data-summary" id="toc-data-summary">Data Summary</a>
+- <a href="#model-1-with-other-responses"
+  id="toc-model-1-with-other-responses">Model 1: With <em>Other</em>
+  Responses</a>
+  - <a href="#odds-ratios-intercept" id="toc-odds-ratios-intercept">Odds
+    Ratios: Intercept</a>
+  - <a href="#odds-ratios-last-vs-firstfull"
+    id="toc-odds-ratios-last-vs-firstfull">Odds Ratios: Last vs
+    First+Full</a>
+  - <a href="#odds-ratios-last-only" id="toc-odds-ratios-last-only">Odds
+    Ratios: Last Only</a>
+  - <a href="#odds-ratios-first-and-full-only"
+    id="toc-odds-ratios-first-and-full-only">Odds Ratios: First and Full
+    Only</a>
+- <a href="#model-2-without-other-responses"
+  id="toc-model-2-without-other-responses">Model 2: Without <em>Other</em>
+  Responses</a>
+  - <a href="#odds-ratios-intercept-1" id="toc-odds-ratios-intercept-1">Odds
+    Ratios: Intercept</a>
+  - <a href="#odds-ratios-last-vs-firstfull-1"
+    id="toc-odds-ratios-last-vs-firstfull-1">Odds Ratios: Last vs
+    First+Full</a>
+  - <a href="#odds-ratios-last-only-1" id="toc-odds-ratios-last-only-1">Odds
+    Ratios: Last Only</a>
+  - <a href="#odds-ratios-first-and-full-only-1"
+    id="toc-odds-ratios-first-and-full-only-1">Odds Ratios: First and Full
+    Only</a>
 
 # Setup
 
 Variable names:
 
--   Experiment: exp3
-
--   Type
-
-    -   d = data
-    -   m = model
-    -   est = log odds estimate from model
-    -   OR = odds ratio converted from est
-
--   Analysis
-
-    -   count =sums of response types
-    -   all = including *other* responses
-    -   noOther = excluding *other* responses
-
--   Subset
-
-    -   FF = First and Full Name conditions only
-
-    -   Last = Last Name condition only
+- Experiment: exp3\_
+- Data (\_d\_)
+  - d = main df
+  - count = sums of response types
+  - noOther = just *he* and *she* responses
+- Models (\_m\_)
+  - all = effect of Condition and Name Gender Rating, including *other*
+    responses
+  - cond = effect of Condition only
+  - noOther = effect of Conditions (Last vs First+Full) and Name Gender
+    Rating, only on *he* and *she* responses
+  - FF = dummy coded with First + Full Name conditions as 0, Last Name
+    condition as 1
+  - L = dummy coded with Last Name condition as 0, First + Full Name
+    conditions as 1
 
 Load data and select columns used in model. See data/exp3_data_about.txt
 for more details.
 
 ``` r
 exp3_d <- read.csv("../data/exp3_data.csv", 
-                   stringsAsFactors=TRUE) %>%
-  rename("Participant"="SubjID", "Item"="Name") %>%
+                   stringsAsFactors = TRUE) %>%
+  rename("Participant" = "SubjID", "Item" = "Name") %>%
   select(Participant, Condition, GenderRating, 
          Item, He, She, Other)
 str(exp3_d)
@@ -82,8 +77,8 @@ most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
 ``` r
-exp3_d %<>% mutate(GenderRatingCentered=
-            scale(GenderRating, scale=FALSE))
+exp3_d %<>% mutate(GenderRatingCentered =
+            scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions, now weighted to account for uneven
@@ -109,27 +104,113 @@ contrasts(exp3_d$Condition)
 Responses by condition.
 
 ``` r
-exp3_d %<>% mutate(ResponseAll=case_when(
-  He==1 ~ "He",
-  She==1 ~ "She", 
-  Other==1 ~ "Other"))
+exp3_d %<>% mutate(ResponseAll = case_when(
+  He    == 1 ~ "He",
+  She   == 1 ~ "She", 
+  Other == 1 ~ "Other"))
 
 exp3_d_count <- exp3_d %>% 
   group_by(Condition, ResponseAll) %>%
-  summarise(n=n()) %>%
-  pivot_wider(names_from=ResponseAll,
-              values_from=n) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from  = ResponseAll,
+              values_from = n) %>%
   mutate(She_HeOther = She / (He+Other),
-         She_He = She / He)
-
-kable(exp3_d_count, digits=3)
+         She_He      = She / He) %>%
+  select(She, He, Other, She_HeOther, She_He)
 ```
 
-| Condition |   He | Other |  She | She_HeOther | She_He |
-|:----------|-----:|------:|-----:|------------:|-------:|
-| first     |  992 |   902 |  941 |       0.497 |  0.949 |
-| full      |  899 |   752 |  848 |       0.514 |  0.943 |
-| last      | 1378 |  1113 | 1079 |       0.433 |  0.783 |
+    ## Adding missing grouping variables: `Condition`
+
+``` r
+kable(exp3_d_count, digits = 3)
+```
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Condition
+</th>
+<th style="text-align:right;">
+She
+</th>
+<th style="text-align:right;">
+He
+</th>
+<th style="text-align:right;">
+Other
+</th>
+<th style="text-align:right;">
+She_HeOther
+</th>
+<th style="text-align:right;">
+She_He
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+first
+</td>
+<td style="text-align:right;">
+941
+</td>
+<td style="text-align:right;">
+992
+</td>
+<td style="text-align:right;">
+902
+</td>
+<td style="text-align:right;">
+0.497
+</td>
+<td style="text-align:right;">
+0.949
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+full
+</td>
+<td style="text-align:right;">
+848
+</td>
+<td style="text-align:right;">
+899
+</td>
+<td style="text-align:right;">
+752
+</td>
+<td style="text-align:right;">
+0.514
+</td>
+<td style="text-align:right;">
+0.943
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+last
+</td>
+<td style="text-align:right;">
+1079
+</td>
+<td style="text-align:right;">
+1378
+</td>
+<td style="text-align:right;">
+1113
+</td>
+<td style="text-align:right;">
+0.433
+</td>
+<td style="text-align:right;">
+0.783
+</td>
+</tr>
+</tbody>
+</table>
 
 # Model 1: With *Other* Responses
 
@@ -150,9 +231,8 @@ the contrast between first and full.
 
 ``` r
 exp3_m_all <- glmer(
-  She ~ Condition * GenderRatingCentered + 
-    (1|Participant) + (1|Item), 
-  data=exp3_d, family=binomial)
+  She ~ Condition * GenderRatingCentered + (1|Participant) + (1|Item), 
+  data = exp3_d, family = binomial)
 summary(exp3_m_all)
 ```
 
@@ -168,22 +248,22 @@ summary(exp3_m_all)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -3.0250 -0.4836 -0.1394  0.5355  9.7281 
+    ## -3.0250 -0.4836 -0.1394  0.5355  9.7282 
     ## 
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
-    ##  Participant (Intercept) 0.7930   0.8905  
+    ##  Participant (Intercept) 0.7931   0.8905  
     ##  Item        (Intercept) 0.4209   0.6488  
     ## Number of obs: 8904, groups:  Participant, 1272; Item, 63
     ## 
     ## Fixed effects:
     ##                                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                     -1.52420    0.10100 -15.090   <2e-16 ***
-    ## Condition1                       0.15326    0.09154   1.674   0.0941 .  
-    ## Condition2                       0.09118    0.11595   0.786   0.4317    
-    ## GenderRatingCentered             1.14843    0.06039  19.018   <2e-16 ***
-    ## Condition1:GenderRatingCentered  0.10498    0.04875   2.153   0.0313 *  
-    ## Condition2:GenderRatingCentered -0.05627    0.06294  -0.894   0.3713    
+    ## (Intercept)                     -1.52419    0.10101 -15.090   <2e-16 ***
+    ## Condition1                       0.15326    0.09155   1.674   0.0941 .  
+    ## Condition2                       0.09121    0.11595   0.787   0.4315    
+    ## GenderRatingCentered             1.14845    0.06039  19.017   <2e-16 ***
+    ## Condition1:GenderRatingCentered  0.10499    0.04875   2.153   0.0313 *  
+    ## Condition2:GenderRatingCentered -0.05628    0.06294  -0.894   0.3712    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -195,39 +275,29 @@ summary(exp3_m_all)
     ## Cndtn1:GnRC -0.009 -0.495  0.000  0.025       
     ## Cndtn2:GnRC  0.016  0.000 -0.488 -0.023  0.009
 
--   Fewer *she* responses overall
+- Fewer *she* responses overall
 
--   Last Name vs First+Full Names condition effect only trending
+- Last Name vs First+Full Names condition effect only trending
 
--   More *she* responses as first names become more feminine
+- More *she* responses as first names become more feminine
 
--   Larger effect of first name gender in First+Full Name conditions
-    than in Last Name conditions, which makes sense because there are 4
-    repetitions of the gendered first name, as opposed to only 1.
+- Larger effect of first name gender in First+Full Name conditions than
+  in Last Name conditions, which makes sense because there are 4
+  repetitions of the gendered first name, as opposed to only 1.
 
 ## Odds Ratios: Intercept
 
 ``` r
-exp3_est_all_intercept <- exp3_m_all %>% 
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp3_est_all_intercept)
+exp(get_intercept(exp3_m_all))
 ```
 
-    ## [1] 0.2177957
+    ## [1] 0.2177969
 
 ``` r
-exp(-exp3_est_all_intercept)
+exp(-get_intercept(exp3_m_all))
 ```
 
-    ## [1] 4.59146
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp3_OR_all_I <- exp(exp3_est_all_intercept) %>% round(2)
-```
+    ## [1] 4.591434
 
 0.22x less likely to use *she* overall (or: 4.59x more likely to use
 *he* and *other* overall), p\<.001
@@ -235,22 +305,14 @@ exp3_OR_all_I <- exp(exp3_est_all_intercept) %>% round(2)
 ## Odds Ratios: Last vs First+Full
 
 ``` r
-exp3_est_all_LFF <- exp3_m_all %>% 
-  tidy() %>%
-  filter(term=="Condition1") %>%
-  select(estimate) %>% as.numeric()
-exp(exp3_est_all_LFF)
+exp3_m_all %>% tidy() %>% filter(term == "Condition1") %>%
+  pull(estimate) %>% exp()
 ```
 
-    ## [1] 1.165627
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp3_OR_all_LFF <- exp(exp3_est_all_LFF) %>% round(2)
-```
+    ## [1] 1.165628
 
 1.17x more likely to use *she* than *he* and *other* in First + Full
-compared to Last, 0.09
+compared to Last, p=0.09
 
 ## Odds Ratios: Last Only
 
@@ -258,18 +320,20 @@ Dummy code with Last Name as 0, so that intercept is the Last Name
 condition only.
 
 ``` r
-exp3_d %<>% mutate(Condition_Last=case_when(
-  Condition=="first" ~ 1,
-  Condition=="full" ~ 1,
-  Condition=="last" ~ 0))
+exp3_d %<>% mutate(Condition_Last = case_when(
+  Condition == "first" ~ 1,
+  Condition == "full"  ~ 1,
+  Condition == "last"  ~ 0))
 exp3_d$Condition_Last %<>% as.factor()
 ```
 
+Model with just Condition (to more directly compare to Exp 1).
+
 ``` r
-exp3_m_all_L <- glmer(
+exp3_m_cond_L <- glmer(
   She ~ Condition_Last + (1|Participant) + (1|Item), 
-  data=exp3_d, family=binomial)
-summary(exp3_m_all_L)
+  data = exp3_d, family = binomial)
+summary(exp3_m_cond_L)
 ```
 
     ## Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -288,13 +352,13 @@ summary(exp3_m_all_L)
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
     ##  Participant (Intercept) 0.7738   0.8796  
-    ##  Item        (Intercept) 5.3394   2.3107  
+    ##  Item        (Intercept) 5.3393   2.3107  
     ## Number of obs: 8904, groups:  Participant, 1272; Item, 63
     ## 
     ## Fixed effects:
     ##                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)     -1.74419    0.30147  -5.786 7.22e-09 ***
-    ## Condition_Last1  0.24968    0.07807   3.198  0.00138 ** 
+    ## (Intercept)     -1.74418    0.30138  -5.787 7.15e-09 ***
+    ## Condition_Last1  0.24967    0.07807   3.198  0.00138 ** 
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -303,29 +367,18 @@ summary(exp3_m_all_L)
     ## Condtn_Lst1 -0.160
 
 ``` r
-exp3_est_all_L <- exp3_m_all_L %>%
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp3_est_all_L)
+exp(get_intercept(exp3_m_cond_L))
 ```
 
-    ## [1] 0.1747868
+    ## [1] 0.1747886
 
 ``` r
-exp(-exp3_est_all_L)
+exp(-get_intercept(exp3_m_cond_L))
 ```
 
-    ## [1] 5.721256
+    ## [1] 5.721196
 
-``` r
-#Save this for the table comparing all 4 experiments
-exp3_OR_all_L <- exp(exp3_est_all_L) %>% 
-  round(2)
-```
-
-0.18x times less likely to use *she* than *he* and *other* in the Last
+0.17x times less likely to use *she* than *he* and *other* in the Last
 Name condition (or: 5.72x more likely to use *he* and *other* in the
 Last Name condition), p\<.001
 
@@ -335,18 +388,20 @@ Dummy code with First and Full Name as 0, so the intercept is the
 combination of those two.
 
 ``` r
-exp3_d %<>% mutate(Condition_FF=case_when(
-  Condition=="first" ~ 0,
-  Condition=="full" ~ 0,
-  Condition=="last" ~ 1))
+exp3_d %<>% mutate(Condition_FF = case_when(
+  Condition == "first" ~ 0,
+  Condition == "full"  ~ 0,
+  Condition == "last"  ~ 1))
 exp3_d$Condition_FF %<>% as.factor()
 ```
 
+Model with just Condition (to more directly compare to Exp 1).
+
 ``` r
-exp3_m_all_FF <- glmer(
+exp3_m_cond_FF <- glmer(
   She ~ Condition_FF + (1|Participant) + (1|Item), 
-  data=exp3_d, family=binomial)
-summary(exp3_m_all_FF)
+  data = exp3_d, family = binomial)
+summary(exp3_m_cond_FF)
 ```
 
     ## Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -370,8 +425,8 @@ summary(exp3_m_all_FF)
     ## 
     ## Fixed effects:
     ##               Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)   -1.49451    0.29900  -4.998 5.78e-07 ***
-    ## Condition_FF1 -0.24968    0.07807  -3.198  0.00138 ** 
+    ## (Intercept)   -1.49451    0.29899  -4.998 5.78e-07 ***
+    ## Condition_FF1 -0.24967    0.07807  -3.198  0.00138 ** 
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -380,27 +435,16 @@ summary(exp3_m_all_FF)
     ## Conditn_FF1 -0.100
 
 ``` r
-exp3_est_all_FF <- exp3_m_all_FF %>%
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp3_est_all_FF)
+exp(get_intercept(exp3_m_cond_FF))
 ```
 
-    ## [1] 0.2243583
+    ## [1] 0.2243578
 
 ``` r
-exp(-exp3_est_all_FF)
+exp(-get_intercept(exp3_m_cond_FF))
 ```
 
-    ## [1] 4.457155
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp3_OR_all_FF <- exp(exp3_est_all_FF) %>% 
-  round(2)
-```
+    ## [1] 4.457166
 
 0.22x times less likely to use *she* than *he* and *other* in the First
 and Full Name conditions (or: 4.46x more likely to use *he* and *other*
@@ -425,7 +469,7 @@ sum(exp3_d$Other)/length(exp3_d$Other)
     ## [1] 0.3107592
 
 ``` r
-exp3_d_noOther <- exp3_d %>% filter(Other==0)
+exp3_d_noOther <- exp3_d %>% filter(Other == 0)
 ```
 
 So, rerun the main model predicting the likelihood of *she* responses vs
@@ -433,9 +477,8 @@ So, rerun the main model predicting the likelihood of *she* responses vs
 
 ``` r
 exp3_m_noOther <- glmer(
-  She ~ Condition * GenderRatingCentered + 
-    (1|Participant) + (1|Item), 
-  data=exp3_d_noOther, family=binomial)
+  She ~ Condition * GenderRatingCentered + (1|Participant) + (1|Item), 
+  data = exp3_d_noOther, family = binomial)
 summary(exp3_m_noOther)
 ```
 
@@ -451,7 +494,7 @@ summary(exp3_m_noOther)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -9.0293 -0.3424 -0.0521  0.2952 12.5650 
+    ## -9.0294 -0.3424 -0.0521  0.2952 12.5650 
     ## 
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
@@ -461,12 +504,12 @@ summary(exp3_m_noOther)
     ## 
     ## Fixed effects:
     ##                                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                     -0.42369    0.12376  -3.423 0.000619 ***
-    ## Condition1                       0.25702    0.09784   2.627 0.008618 ** 
-    ## Condition2                      -0.01458    0.12816  -0.114 0.909424    
+    ## (Intercept)                     -0.42369    0.12377  -3.423 0.000618 ***
+    ## Condition1                       0.25701    0.09784   2.627 0.008619 ** 
+    ## Condition2                      -0.01457    0.12816  -0.114 0.909458    
     ## GenderRatingCentered             1.67709    0.08371  20.034  < 2e-16 ***
     ## Condition1:GenderRatingCentered  0.41954    0.07691   5.455  4.9e-08 ***
-    ## Condition2:GenderRatingCentered -0.14909    0.11205  -1.331 0.183341    
+    ## Condition2:GenderRatingCentered -0.14909    0.11205  -1.331 0.183345    
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
@@ -481,15 +524,15 @@ summary(exp3_m_noOther)
 These results are more similar to what we predicted from the previous
 experiments:
 
--   Fewer *she* responses overall
--   Fewer *she* responses in the Last Name condition as compared to the
-    First + Full Name conditions (although we wouldn’t predict as large
-    as a difference as in Exp1, because here there is one instance of
-    the first name in the Last Name condition)
--   More *she* responses as first names become more feminine
--   Larger effect of first name gender in First+Full Name conditions
-    than in Last Name conditions (which makes sense because there are
-    4repetitions of the gendered first name, as opposed to only 1.)
+- Fewer *she* responses overall
+- Fewer *she* responses in the Last Name condition as compared to the
+  First + Full Name conditions (although we wouldn’t predict as large as
+  a difference as in Exp1, because here there is one instance of the
+  first name in the Last Name condition)
+- More *she* responses as first names become more feminine
+- Larger effect of first name gender in First+Full Name conditions than
+  in Last Name conditions (which makes sense because there are
+  4repetitions of the gendered first name, as opposed to only 1.)
 
 But, to keep the analyses consistent between experiments and avoid
 post-hoc decision weirdness, both versions are reported.
@@ -497,27 +540,16 @@ post-hoc decision weirdness, both versions are reported.
 ## Odds Ratios: Intercept
 
 ``` r
-exp3_est_noOther_intercept <- exp3_m_noOther %>% 
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp3_est_noOther_intercept)
+exp(get_intercept(exp3_m_noOther))
 ```
 
-    ## [1] 0.6546291
+    ## [1] 0.6546237
 
 ``` r
-exp(-exp3_est_noOther_intercept)
+exp(-get_intercept(exp3_m_noOther))
 ```
 
-    ## [1] 1.527583
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp3_OR_noOther_I <- exp(exp3_est_noOther_intercept) %>% 
-  round(2)
-```
+    ## [1] 1.527595
 
 0.65x less likely to use *she* than *he* overall (or: 1.53x more likely
 to use *he* than *she* overall), p\<.001
@@ -525,20 +557,11 @@ to use *he* than *she* overall), p\<.001
 ## Odds Ratios: Last vs First+Full
 
 ``` r
-exp3_est_noOther_LFF <- exp3_m_noOther %>% 
-  tidy() %>%
-  filter(term=="Condition1") %>%
-  select(estimate) %>% as.numeric()
-exp(exp3_est_noOther_LFF)
+exp3_m_noOther %>% tidy() %>% filter(term == "Condition1") %>%
+  pull(estimate) %>% exp()
 ```
 
-    ## [1] 1.293069
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp3_OR_noOther_LFF <- exp(exp3_est_noOther_LFF) %>% 
-  round(2)
-```
+    ## [1] 1.293063
 
 1.29x more likely to use *she* than *he* in First+Full than in Last (or:
 1.29x more likely to use *he* than *she* in Last than in First+Full),
@@ -550,17 +573,17 @@ Dummy code with Last Name as 0, so that intercept is the Last Name
 condition only.
 
 ``` r
-exp3_d_noOther %<>% mutate(Condition_Last=case_when(
-  Condition=="first" ~ 1,
-  Condition=="full" ~ 1,
-  Condition=="last" ~ 0))
+exp3_d_noOther %<>% mutate(Condition_Last = case_when(
+  Condition == "first" ~ 1,
+  Condition == "full"  ~ 1,
+  Condition == "last"  ~ 0))
 exp3_d_noOther$Condition_Last %<>% as.factor()
 ```
 
 ``` r
 exp3_m_noOther_L <- glmer(
   She ~ Condition_Last + (1|Participant) + (1|Item), 
-  data=exp3_d_noOther, family=binomial)
+  data = exp3_d_noOther, family = binomial)
 summary(exp3_m_noOther_L)
 ```
 
@@ -585,7 +608,7 @@ summary(exp3_m_noOther_L)
     ## 
     ## Fixed effects:
     ##                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)     -0.67726    0.41221  -1.643      0.1    
+    ## (Intercept)     -0.67726    0.41223  -1.643      0.1    
     ## Condition_Last1  0.37418    0.09174   4.079 4.53e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -595,27 +618,16 @@ summary(exp3_m_noOther_L)
     ## Condtn_Lst1 -0.135
 
 ``` r
-exp3_est_noOther_L <- exp3_m_noOther_L %>%
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp3_est_noOther_L)
+exp(get_intercept(exp3_m_noOther_L))
 ```
 
-    ## [1] 0.5080064
+    ## [1] 0.5080049
 
 ``` r
-exp(-exp3_est_noOther_L)
+exp(-get_intercept(exp3_m_noOther_L))
 ```
 
-    ## [1] 1.968479
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp3_OR_noOther_L <- exp(exp3_est_noOther_L) %>% 
-  round(2)
-```
+    ## [1] 1.968485
 
 0.51x times less likely to use *she* than *he* in the Last Name
 condition (or: 1.97x more likely to use *he* than *she* in the Last Name
@@ -629,7 +641,7 @@ combination of those two.
 ``` r
 exp3_m_noOther_FF <- glmer(
   She ~ Condition_FF + (1|Participant) + (1|Item), 
-  data=exp3_d_noOther, family=binomial)
+  data = exp3_d_noOther, family = binomial)
 summary(exp3_m_noOther_FF)
 ```
 
@@ -654,7 +666,7 @@ summary(exp3_m_noOther_FF)
     ## 
     ## Fixed effects:
     ##               Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)   -0.30308    0.41011  -0.739     0.46    
+    ## (Intercept)   -0.30308    0.41002  -0.739     0.46    
     ## Condition_FF1 -0.37418    0.09174  -4.079 4.53e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -664,27 +676,16 @@ summary(exp3_m_noOther_FF)
     ## Conditn_FF1 -0.088
 
 ``` r
-exp3_est_noOther_FF <- exp3_m_noOther_FF %>%
-  tidy() %>%
-  filter(term=="(Intercept)") %>%
-  select(estimate) %>% as.numeric()
-
-exp(exp3_est_noOther_FF)
+exp(get_intercept(exp3_m_noOther_FF))
 ```
 
-    ## [1] 0.7385367
+    ## [1] 0.7385373
 
 ``` r
-exp(-exp3_est_noOther_FF)
+exp(-get_intercept(exp3_m_noOther_FF))
 ```
 
-    ## [1] 1.354029
-
-``` r
-#Save this for the table comparing all 4 experiments
-exp3_OR_noOther_FF <- exp(exp3_est_noOther_FF) %>% 
-  round(2)
-```
+    ## [1] 1.354028
 
 0.74x times less likely to use *she* than *he* and *other* in the First
 and Full Name conditions (or: 1.35x more likely to use *he* and *other*

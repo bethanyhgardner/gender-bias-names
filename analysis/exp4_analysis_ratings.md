@@ -1,35 +1,29 @@
 Experiment 4: Ratings Analyses
 ================
-2022-08-12
+2023-02-24
 
--   <a href="#setup" id="toc-setup">Setup</a>
--   <a href="#likeability" id="toc-likeability">Likeability</a>
--   <a href="#accomplishment" id="toc-accomplishment">Accomplishment</a>
--   <a href="#importance" id="toc-importance">Importance</a>
+- <a href="#setup" id="toc-setup">Setup</a>
+- <a href="#likeability" id="toc-likeability">Likeability</a>
+- <a href="#accomplishment" id="toc-accomplishment">Accomplishment</a>
+- <a href="#importance" id="toc-importance">Importance</a>
+- <a href="#all-ratings" id="toc-all-ratings">All Ratings</a>
 
 # Setup
 
--   Variable names:
+Variable names:
 
-    -   Experiment: exp4
-
-    -   Type
-
-        -   d = data
-        -   m = model
-        -   est = log odds estimate from model
-        -   OR = odds ratio converted from est
-
-    -   Analysis
-
-        -   Lik = likability ratings
-        -   Acc = accomplishment ratings
-        -   Imp = importance ratings
+- Experiment: exp4\_
+- Data (\_d\_)
+  - d = main df
+- Models (\_m\_)
+  - like = Likeability ratings
+  - acc = Accomplishment ratings
+  - imp = Importance ratings
 
 ``` r
 exp4_d <- read.csv("../data/exp4_data.csv", 
-                   stringsAsFactors=TRUE) %>%
-  rename("Participant"="SubjID", "Item"="Name") %>%
+                   stringsAsFactors = TRUE) %>%
+  rename("Participant" = "SubjID", "Item" = "Name") %>%
   select(Participant, Condition, 
          GenderRating, Item, Male, Female, Other,
          Likeable, Accomplished, Important)
@@ -53,8 +47,8 @@ most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
 ``` r
-exp4_d %<>% mutate(GenderRatingCentered=
-                     scale(GenderRating, scale=FALSE))
+exp4_d %<>% mutate(GenderRatingCentered =
+            scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions, now weighted to account for uneven
@@ -81,17 +75,14 @@ L/A/I, to make interpreting models easier, then mean-center.
 ``` r
 exp4_d %<>% mutate(
   LikeableFlip = recode(Likeable, 
-      '1'=7, '2'=6, '3'=5, '4'=4, '5'=3, '6'=2, '7'=1),
+      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
   AccomplishedFlip = recode(Accomplished,
-      '1'=7, '2'=6, '3'=5, '4'=4, '5'=3, '6'=2, '7'=1),
+      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
   ImportantFlip = recode(Important,
-      '1'=7, '2'=6, '3'=5, '4'=4, '5'=3, '6'=2, '7'=1),
-  LikeableCentered = scale(
-    LikeableFlip, scale=FALSE),
-  AccomplishedCentered = scale(
-    AccomplishedFlip, scale=FALSE),
-  ImportantCentered = scale(
-    ImportantFlip, scale=FALSE))
+      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
+  LikeableCentered = scale(LikeableFlip, scale = FALSE),
+  AccomplishedCentered = scale(AccomplishedFlip, scale = FALSE),
+  ImportantCentered = scale(ImportantFlip, scale = FALSE))
 
 str(exp4_d)
 ```
@@ -153,13 +144,13 @@ maximal model includes random intercepts by item, but not by
 participant.
 
 ``` r
-exp4_m_lik <- buildmer(
-  formula=(Female ~ Condition * GenderRatingCentered * 
-           LikeableCentered + (1|Participant) + (1|Item)),
-  data=exp4_d, family=binomial, 
-  direction=c("order"), quiet=TRUE)
+exp4_m_like <- buildmer(
+  formula = Female ~ Condition * GenderRatingCentered * 
+            LikeableCentered + (1|Participant) + (1|Item),
+  data = exp4_d, family = binomial, 
+  buildmerControl(direction = "order", quiet = TRUE))
 
-summary(exp4_m_lik)
+summary(exp4_m_like)
 ```
 
     ## Generalized linear mixed model fit by maximum likelihood (Laplace
@@ -239,15 +230,15 @@ summary(exp4_m_lik)
     ## GndRC:LC:C1  0.005          
     ## GndRC:LC:C2 -0.127 -0.044
 
--   Characters who are rated more Likeable are more likely to be
-    recalled as female across conditions
+- Characters who are rated more Likeable are more likely to be recalled
+  as female across conditions
 
--   Interaction with Name Gender Rating: stronger effect of Likeability
-    rating for more feminine names
+- Interaction with Name Gender Rating: stronger effect of Likeability
+  rating for more feminine names
 
--   Interaction with Condition (F vs F): n.s. after multiple comparisons
+- Interaction with Condition (F vs F): n.s. after multiple comparisons
 
--   No other interactions significant
+- No other interactions significant
 
 # Accomplishment
 
@@ -280,10 +271,10 @@ participant.
 
 ``` r
 exp4_m_acc <- buildmer(
-  formula=(Female ~ Condition * GenderRatingCentered * 
-    AccomplishedCentered + (1|Participant) + (1|Item)),
-  data=exp4_d, family=binomial, 
-  direction=c("order"), quiet=TRUE)
+  formula = Female ~ Condition * GenderRatingCentered * 
+            AccomplishedCentered + (1|Participant) + (1|Item),
+  data = exp4_d, family = binomial, 
+  buildmerControl(direction = "order", quiet = TRUE))
 
 summary(exp4_m_acc)
 ```
@@ -378,15 +369,15 @@ summary(exp4_m_acc)
     ## GndRC:AC:C1  0.025          
     ## GndRC:AC:C2 -0.120 -0.065
 
--   Characters who were rated more Accomplished were more likely to be
-    recalled as female, but this is n.s. after correction for multiple
-    comparisons.
+- Characters who were rated more Accomplished were more likely to be
+  recalled as female, but this is n.s. after correction for multiple
+  comparisons.
 
--   Interaction with Name Gender Rating: stronger effect of
-    Accomplishment rating for more feminine names
+- Interaction with Name Gender Rating: stronger effect of Accomplishment
+  rating for more feminine names
 
--   Interaction between Condition (L vs F+F), Name Gender Rating, and
-    Accomplishment: n.s. after correction for multiple comparisons
+- Interaction between Condition (L vs F+F), Name Gender Rating, and
+  Accomplishment: n.s. after correction for multiple comparisons
 
 # Importance
 
@@ -419,10 +410,10 @@ participant.
 
 ``` r
 exp4_m_imp <- buildmer(
-  formula=(Female ~ Condition * GenderRatingCentered * 
-           ImportantCentered + (1|Participant) + (1|Item)),
-  data=exp4_d, family=binomial, 
-  direction=c("order"), quiet=TRUE)
+  formula = Female ~ Condition * GenderRatingCentered * 
+            ImportantCentered + (1|Participant) + (1|Item),
+  data = exp4_d, family = binomial, 
+ buildmerControl(direction = "order", quiet = TRUE))
 
 summary(exp4_m_imp)
 ```
@@ -442,41 +433,41 @@ summary(exp4_m_imp)
     ## 
     ## Scaled residuals: 
     ##     Min      1Q  Median      3Q     Max 
-    ## -3.4352 -0.5792 -0.2520  0.5759  5.9606 
+    ## -3.4350 -0.5792 -0.2520  0.5759  5.9606 
     ## 
     ## Random effects:
     ##  Groups      Name        Variance Std.Dev.
-    ##  Participant (Intercept) 0.2045   0.4523  
+    ##  Participant (Intercept) 0.2046   0.4523  
     ##  Item        (Intercept) 0.3583   0.5986  
     ## Number of obs: 8771, groups:  Participant, 1253; Item, 63
     ## 
     ## Fixed effects:
     ##                                                    Estimate Std. Error
-    ## (Intercept)                                       -0.248831   0.081533
-    ## GenderRatingCentered                               0.772473   0.045915
-    ## Condition1                                         0.125494   0.062103
-    ## Condition2                                         0.080001   0.072921
-    ## ImportantCentered                                  0.009614   0.019744
-    ## GenderRatingCentered:Condition1                    0.133313   0.034992
-    ## GenderRatingCentered:Condition2                   -0.098339   0.042672
-    ## GenderRatingCentered:ImportantCentered             0.077713   0.011593
-    ## Condition1:ImportantCentered                       0.009940   0.039430
-    ## Condition2:ImportantCentered                       0.076884   0.046679
-    ## GenderRatingCentered:Condition1:ImportantCentered  0.016044   0.023112
-    ## GenderRatingCentered:Condition2:ImportantCentered -0.008273   0.028272
+    ## (Intercept)                                       -0.248892   0.081537
+    ## GenderRatingCentered                               0.772461   0.045917
+    ## Condition1                                         0.125461   0.062103
+    ## Condition2                                         0.080003   0.072921
+    ## ImportantCentered                                  0.009608   0.019744
+    ## GenderRatingCentered:Condition1                    0.133316   0.034991
+    ## GenderRatingCentered:Condition2                   -0.098327   0.042671
+    ## GenderRatingCentered:ImportantCentered             0.077709   0.011593
+    ## Condition1:ImportantCentered                       0.009942   0.039430
+    ## Condition2:ImportantCentered                       0.076855   0.046679
+    ## GenderRatingCentered:Condition1:ImportantCentered  0.016059   0.023112
+    ## GenderRatingCentered:Condition2:ImportantCentered -0.008253   0.028272
     ##                                                     z value Pr(>|z|) Pr(>|t|)
-    ## (Intercept)                                       -3.051905    0.002 0.002274
-    ## GenderRatingCentered                              16.824126    0.000  < 2e-16
-    ## Condition1                                         2.020735    0.043 0.043307
-    ## Condition2                                         1.097085    0.273 0.272604
-    ## ImportantCentered                                  0.486938    0.626 0.626303
-    ## GenderRatingCentered:Condition1                    3.809828    0.000 0.000139
-    ## GenderRatingCentered:Condition2                   -2.304540    0.021 0.021192
-    ## GenderRatingCentered:ImportantCentered             6.703197    0.000 2.04e-11
-    ## Condition1:ImportantCentered                       0.252097    0.801 0.800966
-    ## Condition2:ImportantCentered                       1.647085    0.100 0.099541
-    ## GenderRatingCentered:Condition1:ImportantCentered  0.694202    0.488 0.487555
-    ## GenderRatingCentered:Condition2:ImportantCentered -0.292635    0.770 0.769801
+    ## (Intercept)                                       -3.052491    0.002 0.002270
+    ## GenderRatingCentered                              16.823044    0.000  < 2e-16
+    ## Condition1                                         2.020222    0.043 0.043360
+    ## Condition2                                         1.097125    0.273 0.272587
+    ## ImportantCentered                                  0.486630    0.627 0.626520
+    ## GenderRatingCentered:Condition1                    3.809969    0.000 0.000139
+    ## GenderRatingCentered:Condition2                   -2.304278    0.021 0.021207
+    ## GenderRatingCentered:ImportantCentered             6.702869    0.000 2.04e-11
+    ## Condition1:ImportantCentered                       0.252137    0.801 0.800935
+    ## Condition2:ImportantCentered                       1.646454    0.100 0.099670
+    ## GenderRatingCentered:Condition1:ImportantCentered  0.694852    0.487 0.487148
+    ## GenderRatingCentered:Condition2:ImportantCentered -0.291910    0.770 0.770355
     ##                                                      
     ## (Intercept)                                       ** 
     ## GenderRatingCentered                              ***
@@ -519,7 +510,10 @@ summary(exp4_m_imp)
     ## GndRC:C1:IC  0.019        
     ## GndRC:C2:IC -0.087 -0.074
 
--   No main effect of Importance like there was for other ratings
+- No main effect of Importance like there was for other ratings
+
+- Interaction with Name Gender Rating: stronger effect of Importance
+  rating for more feminine names
 
 -   Interaction with Name Gender Rating: stronger effect of Importance
     rating for more feminine names
