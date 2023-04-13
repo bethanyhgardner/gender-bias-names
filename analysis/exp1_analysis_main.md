@@ -1,6 +1,6 @@
 Experiment 1: Main Analyses
 ================
-2023-02-24
+2023-03-26
 
 - <a href="#setup" id="toc-setup">Setup</a>
 - <a href="#data-summary" id="toc-data-summary">Data Summary</a>
@@ -42,12 +42,13 @@ Load data and select columns used in model. See data/exp1_data_about.txt
 for more details.
 
 ``` r
-exp1_d <- read.csv("../data/exp1_data.csv", 
+exp1_d <- read.csv("../data/exp1_data.csv",
                    stringsAsFactors = TRUE) %>%
   rename("Participant" = "SubjID", "Item" = "NameShown") %>%
-  select(Participant, SubjGenderMale, 
-         Condition, GenderRating, 
-         Item, He, She, Other)
+  select(
+    Participant, SubjGenderMale, Condition, GenderRating,
+    Item, He, She, Other
+  )
 str(exp1_d)
 ```
 
@@ -66,16 +67,16 @@ most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
 ``` r
-exp1_d %<>% mutate(GenderRatingCentered =
-    scale(GenderRating, scale = FALSE))
+exp1_d %<>% mutate(GenderRatingCentered = scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions.
 
 ``` r
-contrasts(exp1_d$Condition) = cbind(
-  "last vs first/full" = c(.33, .33, -0.66), 
-  "first vs full"      = c(-.5, .5,  0))
+contrasts(exp1_d$Condition) <- cbind(
+  "last vs first/full" = c(.33, .33, -0.66),
+  "first vs full"      = c(-.5, .5, 0)
+)
 contrasts(exp1_d$Condition)
 ```
 
@@ -87,10 +88,12 @@ contrasts(exp1_d$Condition)
 Subset for gender rating effects (First and Full conditions only).
 
 ``` r
-exp1_d_FF <- exp1_d %>% filter(Condition != "last") 
+exp1_d_FF <- exp1_d %>% filter(Condition != "last")
 exp1_d_FF$Condition %<>% droplevels()
-contrasts(exp1_d_FF$Condition) = cbind(
-  "first vs full" = c(-.5, .5)) #add contrast back
+
+contrasts(exp1_d_FF$Condition) <- cbind(
+  "first vs full" = c(-.5, .5)
+) # add contrast back
 contrasts(exp1_d_FF$Condition)
 ```
 
@@ -105,23 +108,28 @@ Responses by condition.
 ``` r
 exp1_d %<>% mutate(ResponseAll = case_when(
   He    == 1 ~ "He",
-  She   == 1 ~ "She", 
-  Other == 1 ~ "Other"))
+  She   == 1 ~ "She",
+  Other == 1 ~ "Other"
+))
 
-exp1_d_count <- exp1_d %>% 
+exp1_d_count <- exp1_d %>%
   group_by(Condition, ResponseAll) %>%
   summarise(n = n()) %>%
-  pivot_wider(names_from  = ResponseAll,
-              values_from = n) %>%
-  mutate(She_HeOther = She / (He+Other),
-         She_He      = She / He) %>%
+  pivot_wider(
+    names_from = ResponseAll,
+    values_from = n
+  ) %>%
+  mutate(
+    She_HeOther = She / (He + Other),
+    She_He = She / He
+  ) %>%
   select(She, He, Other, She_HeOther, She_He)
 ```
 
     ## Adding missing grouping variables: `Condition`
 
 ``` r
-kable(exp1_d_count, digits = 3, align = 'c')
+kable(exp1_d_count, digits = 3, align = "c")
 ```
 
 <table>
@@ -226,8 +234,9 @@ fitting a random slope model was not possible.
 
 ``` r
 exp1_m_cond <- glmer(
-  She ~ Condition + (1|Participant) + (1|Item), 
-  data = exp1_d, family = binomial)
+  She ~ Condition + (1 | Participant) + (1 | Item),
+  data = exp1_d, family = binomial
+)
 summary(exp1_m_cond)
 ```
 
@@ -288,9 +297,11 @@ use *he* or *other* overall), p\<.001
 ## Odds Ratios: Last vs First+Full
 
 ``` r
-exp1_m_cond %>% tidy() %>%
+exp1_m_cond %>%
+  tidy() %>%
   filter(term == "Conditionlast vs first/full") %>%
-  pull(estimate) %>% exp()
+  pull(estimate) %>%
+  exp()
 ```
 
     ## [1] 16.84624
@@ -308,14 +319,16 @@ condition only.
 exp1_d %<>% mutate(Condition_Last = case_when(
   Condition == "first" ~ 1,
   Condition == "full"  ~ 1,
-  Condition == "last"  ~ 0))
+  Condition == "last"  ~ 0
+))
 exp1_d$Condition_Last %<>% as.factor()
 ```
 
 ``` r
 exp1_m_L <- glmer(
-  She ~ Condition_Last + (1|Participant) + (1|Item), 
-  data = exp1_d, family = binomial)
+  She ~ Condition_Last + (1 | Participant) + (1 | Item),
+  data = exp1_d, family = binomial
+)
 summary(exp1_m_L)
 ```
 
@@ -374,14 +387,16 @@ for these two conditions.
 exp1_d %<>% mutate(Condition_FF = case_when(
   Condition == "first" ~ 0,
   Condition == "full"  ~ 0,
-  Condition == "last"  ~ 1))
+  Condition == "last"  ~ 1
+))
 exp1_d$Condition_FF %<>% as.factor()
 ```
 
 ``` r
 exp1_m_FF <- glmer(
-  She ~ Condition_FF + (1|Participant) + (1|Item), 
-  data = exp1_d, family = binomial)
+  She ~ Condition_FF + (1 | Participant) + (1 | Item),
+  data = exp1_d, family = binomial
+)
 summary(exp1_m_FF)
 ```
 
@@ -442,8 +457,10 @@ Participant and Item are again included as random intercepts.
 
 ``` r
 exp1_m_nameGender <- glmer(
-  She ~ Condition * GenderRatingCentered + (1|Participant) + (1|Item), 
-  exp1_d_FF, family = binomial)
+  She ~ Condition * GenderRatingCentered + (1 | Participant) + (1 | Item),
+  exp1_d_FF,
+  family = binomial
+)
 summary(exp1_m_nameGender)
 ```
 

@@ -1,6 +1,6 @@
 Experiment 3: Main Analyses
 ================
-2023-02-24
+2023-03-26
 
 - <a href="#setup" id="toc-setup">Setup</a>
 - <a href="#data-summary" id="toc-data-summary">Data Summary</a>
@@ -55,11 +55,13 @@ Load data and select columns used in model. See data/exp3_data_about.txt
 for more details.
 
 ``` r
-exp3_d <- read.csv("../data/exp3_data.csv", 
+exp3_d <- read.csv("../data/exp3_data.csv",
                    stringsAsFactors = TRUE) %>%
   rename("Participant" = "SubjID", "Item" = "Name") %>%
-  select(Participant, Condition, GenderRating, 
-         Item, He, She, Other)
+  select(
+    Participant, Condition, GenderRating,
+    Item, He, She, Other
+  )
 str(exp3_d)
 ```
 
@@ -77,8 +79,7 @@ most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
 ``` r
-exp3_d %<>% mutate(GenderRatingCentered =
-            scale(GenderRating, scale = FALSE))
+exp3_d %<>% mutate(GenderRatingCentered = scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions, now weighted to account for uneven
@@ -90,7 +91,8 @@ First vs Full.
 ``` r
 source("centerfactor.R")
 contrasts(exp3_d$Condition) <- centerfactor(
-  exp3_d$Condition, c("last","first"))
+  exp3_d$Condition, c("last", "first")
+)
 contrasts(exp3_d$Condition)
 ```
 
@@ -106,16 +108,21 @@ Responses by condition.
 ``` r
 exp3_d %<>% mutate(ResponseAll = case_when(
   He    == 1 ~ "He",
-  She   == 1 ~ "She", 
-  Other == 1 ~ "Other"))
+  She   == 1 ~ "She",
+  Other == 1 ~ "Other"
+))
 
-exp3_d_count <- exp3_d %>% 
+exp3_d_count <- exp3_d %>%
   group_by(Condition, ResponseAll) %>%
   summarise(n = n()) %>%
-  pivot_wider(names_from  = ResponseAll,
-              values_from = n) %>%
-  mutate(She_HeOther = She / (He+Other),
-         She_He      = She / He) %>%
+  pivot_wider(
+    names_from = ResponseAll,
+    values_from = n
+  ) %>%
+  mutate(
+    She_HeOther = She / (He + Other),
+    She_He = She / He
+  ) %>%
   select(She, He, Other, She_HeOther, She_He)
 ```
 
@@ -231,8 +238,9 @@ the contrast between first and full.
 
 ``` r
 exp3_m_all <- glmer(
-  She ~ Condition * GenderRatingCentered + (1|Participant) + (1|Item), 
-  data = exp3_d, family = binomial)
+  She ~ Condition * GenderRatingCentered + (1 | Participant) + (1 | Item),
+  data = exp3_d, family = binomial
+)
 summary(exp3_m_all)
 ```
 
@@ -305,8 +313,11 @@ exp(-get_intercept(exp3_m_all))
 ## Odds Ratios: Last vs First+Full
 
 ``` r
-exp3_m_all %>% tidy() %>% filter(term == "Condition1") %>%
-  pull(estimate) %>% exp()
+exp3_m_all %>%
+  tidy() %>%
+  filter(term == "Condition1") %>%
+  pull(estimate) %>%
+  exp()
 ```
 
     ## [1] 1.165628
@@ -323,7 +334,8 @@ condition only.
 exp3_d %<>% mutate(Condition_Last = case_when(
   Condition == "first" ~ 1,
   Condition == "full"  ~ 1,
-  Condition == "last"  ~ 0))
+  Condition == "last"  ~ 0
+))
 exp3_d$Condition_Last %<>% as.factor()
 ```
 
@@ -331,8 +343,9 @@ Model with just Condition (to more directly compare to Exp 1).
 
 ``` r
 exp3_m_cond_L <- glmer(
-  She ~ Condition_Last + (1|Participant) + (1|Item), 
-  data = exp3_d, family = binomial)
+  She ~ Condition_Last + (1 | Participant) + (1 | Item),
+  data = exp3_d, family = binomial
+)
 summary(exp3_m_cond_L)
 ```
 
@@ -391,7 +404,8 @@ combination of those two.
 exp3_d %<>% mutate(Condition_FF = case_when(
   Condition == "first" ~ 0,
   Condition == "full"  ~ 0,
-  Condition == "last"  ~ 1))
+  Condition == "last"  ~ 1
+))
 exp3_d$Condition_FF %<>% as.factor()
 ```
 
@@ -399,8 +413,9 @@ Model with just Condition (to more directly compare to Exp 1).
 
 ``` r
 exp3_m_cond_FF <- glmer(
-  She ~ Condition_FF + (1|Participant) + (1|Item), 
-  data = exp3_d, family = binomial)
+  She ~ Condition_FF + (1 | Participant) + (1 | Item),
+  data = exp3_d, family = binomial
+)
 summary(exp3_m_cond_FF)
 ```
 
@@ -457,13 +472,13 @@ in Experiment 1. So, we get a much higher proportion of *other*
 responses (31% vs 7%), which I didn’t anticipate.
 
 ``` r
-sum(exp3_d$Other) 
+sum(exp3_d$Other)
 ```
 
     ## [1] 2767
 
 ``` r
-sum(exp3_d$Other)/length(exp3_d$Other) 
+sum(exp3_d$Other) / length(exp3_d$Other)
 ```
 
     ## [1] 0.3107592
@@ -477,8 +492,9 @@ So, rerun the main model predicting the likelihood of *she* responses vs
 
 ``` r
 exp3_m_noOther <- glmer(
-  She ~ Condition * GenderRatingCentered + (1|Participant) + (1|Item), 
-  data = exp3_d_noOther, family = binomial)
+  She ~ Condition * GenderRatingCentered + (1 | Participant) + (1 | Item),
+  data = exp3_d_noOther, family = binomial
+)
 summary(exp3_m_noOther)
 ```
 
@@ -557,8 +573,11 @@ to use *he* than *she* overall), p\<.001
 ## Odds Ratios: Last vs First+Full
 
 ``` r
-exp3_m_noOther %>% tidy() %>% filter(term == "Condition1") %>%
-  pull(estimate) %>% exp()
+exp3_m_noOther %>%
+  tidy() %>%
+  filter(term == "Condition1") %>%
+  pull(estimate) %>%
+  exp()
 ```
 
     ## [1] 1.293063
@@ -576,14 +595,16 @@ condition only.
 exp3_d_noOther %<>% mutate(Condition_Last = case_when(
   Condition == "first" ~ 1,
   Condition == "full"  ~ 1,
-  Condition == "last"  ~ 0))
+  Condition == "last"  ~ 0
+))
 exp3_d_noOther$Condition_Last %<>% as.factor()
 ```
 
 ``` r
 exp3_m_noOther_L <- glmer(
-  She ~ Condition_Last + (1|Participant) + (1|Item), 
-  data = exp3_d_noOther, family = binomial)
+  She ~ Condition_Last + (1 | Participant) + (1 | Item),
+  data = exp3_d_noOther, family = binomial
+)
 summary(exp3_m_noOther_L)
 ```
 
@@ -639,9 +660,19 @@ Dummy code with First and Full Name as 0, so the intercept is the
 combination of those two.
 
 ``` r
+exp3_d_noOther %<>% mutate(Condition_FF = case_when(
+  Condition == "first" ~ 0,
+  Condition == "full"  ~ 0,
+  Condition == "last"  ~ 1
+))
+exp3_d_noOther$Condition_FF %<>% as.factor()
+```
+
+``` r
 exp3_m_noOther_FF <- glmer(
-  She ~ Condition_FF + (1|Participant) + (1|Item), 
-  data = exp3_d_noOther, family = binomial)
+  She ~ Condition_FF + (1 | Participant) + (1 | Item),
+  data = exp3_d_noOther, family = binomial
+)
 summary(exp3_m_noOther_FF)
 ```
 

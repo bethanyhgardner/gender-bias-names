@@ -1,6 +1,6 @@
 Experiment 4: Supplementary Analyses
 ================
-2023-02-24
+2023-03-26
 
 - <a href="#setup" id="toc-setup">Setup</a>
 - <a href="#without-other-responses"
@@ -54,11 +54,13 @@ Load data and select columns used in model. See data/exp4_data_about.txt
 for more details.
 
 ``` r
-exp4_d <- read.csv("../data/exp4_data.csv", 
+exp4_d <- read.csv("../data/exp4_data.csv",
                    stringsAsFactors = TRUE) %>%
   rename("Participant" = "SubjID", "Item" = "Name") %>%
-  select(Participant, Condition, SubjGenderMale, 
-         GenderRating, Item, Male, Female, Other)
+  select(
+    Participant, Condition, SubjGenderMale,
+    GenderRating, Item, Male, Female, Other
+  )
 str(exp4_d)
 ```
 
@@ -88,7 +90,8 @@ First vs Full.
 
 ``` r
 source("centerfactor.R")
-contrasts(exp4_d$Condition) <- centerfactor(exp4_d$Condition, c("last","first"))
+contrasts(exp4_d$Condition) <- centerfactor(exp4_d$Condition,
+                                            c("last", "first"))
 contrasts(exp4_d$Condition)
 ```
 
@@ -103,13 +106,13 @@ The first supplementary analysis tests if excluding *other* responses
 (2.99% of total responses) affects the pattern of results.
 
 ``` r
-sum(exp4_d$Other) 
+sum(exp4_d$Other)
 ```
 
     ## [1] 262
 
 ``` r
-sum(exp4_d$Other)/length(exp4_d$Other) 
+sum(exp4_d$Other) / length(exp4_d$Other)
 ```
 
     ## [1] 0.02987117
@@ -128,8 +131,9 @@ unique first, last and first + last name combinations.
 
 ``` r
 exp4_m_noOther <- glmer(
-  Female ~ Condition * GenderRatingCentered + (1|Participant) + (1|Item), 
-  data = exp4_d_noOther, family = binomial)
+  Female ~ Condition * GenderRatingCentered + (1 | Participant) + (1 | Item),
+  data = exp4_d_noOther, family = binomial
+)
 summary(exp4_m_noOther)
 ```
 
@@ -199,8 +203,11 @@ recall as male overall), p\<.05
 ## Odds Ratios: Last vs First+Full
 
 ``` r
-exp4_m_noOther %>% tidy() %>%
-  filter(term=="Condition1") %>% pull(estimate) %>% exp()
+exp4_m_noOther %>%
+  tidy() %>%
+  filter(term == "Condition1") %>%
+  pull(estimate) %>%
+  exp()
 ```
 
     ## [1] 1.144697
@@ -217,14 +224,16 @@ condition only.
 exp4_d_noOther %<>% mutate(Condition_Last = case_when(
   Condition == "first" ~ 1,
   Condition == "full"  ~ 1,
-  Condition == "last"  ~ 0))
+  Condition == "last"  ~ 0
+))
 exp4_d_noOther$Condition_Last %<>% as.factor()
 ```
 
 ``` r
 exp4_m_noOther_L <- glmer(
-  Female ~ Condition_Last + (1|Participant) + (1|Item), 
-  data = exp4_d_noOther, family = binomial)
+  Female ~ Condition_Last + (1 | Participant) + (1 | Item),
+  data = exp4_d_noOther, family = binomial
+)
 summary(exp4_m_noOther_L)
 ```
 
@@ -283,14 +292,16 @@ for these two conditions.
 exp4_d_noOther %<>% mutate(Condition_FF = case_when(
   Condition == "first" ~ 0,
   Condition == "full"  ~ 0,
-  Condition == "last"  ~ 1))
+  Condition == "last"  ~ 1
+))
 exp4_d_noOther$Condition_FF %<>% as.factor()
 ```
 
 ``` r
 exp4_m_noOther_FF <- glmer(
-  Female ~ Condition_FF + (1|Participant) + (1|Item), 
-  data = exp4_d_noOther, family = binomial)
+  Female ~ Condition_FF + (1 | Participant) + (1 | Item),
+  data = exp4_d_noOther, family = binomial
+)
 summary(exp4_m_noOther_FF)
 ```
 
@@ -351,9 +362,10 @@ gender associations.
 exp4_d %<>% mutate(GenderRatingSquared = GenderRatingCentered^2)
 
 exp4_m_quad <- glmer(
-  Female ~ Condition*GenderRatingCentered + Condition*GenderRatingSquared +
-    (1|Participant) + (1|Item), 
-  data = exp4_d, family = binomial)
+  Female ~ Condition * GenderRatingCentered + Condition * GenderRatingSquared +
+    (1 | Participant) + (1 | Item),
+  data = exp4_d, family = binomial
+)
 summary(exp4_m_quad)
 ```
 
@@ -418,8 +430,10 @@ non-male participants.
 Participants entered their gender in a free-response box.
 
 ``` r
-exp4_d %>% group_by(SubjGenderMale) %>% 
-  summarise(total = n_distinct(Participant)) %>% kable()
+exp4_d %>%
+  group_by(SubjGenderMale) %>%
+  summarise(total = n_distinct(Participant)) %>%
+  kable()
 ```
 
 <table>
@@ -470,14 +484,16 @@ female (N=1) are coded as 0.
 Summary of responses by condition and participant gender:
 
 ``` r
-exp4_d_subjGender <- exp4_d %>% 
+exp4_d_subjGender <- exp4_d %>%
   filter(!is.na(SubjGenderMale)) %>%
   mutate(ResponseAll = case_when(
     Male   == 1 ~ "Male",
-    Female == 1 ~ "Female", 
-    Other  == 1 ~ "Other"))
+    Female == 1 ~ "Female",
+    Other  == 1 ~ "Other"
+  ))
 
-exp4_d_subjGender %>% group_by(SubjGenderMale) %>% 
+exp4_d_subjGender %>%
+  group_by(SubjGenderMale) %>%
   summarise(total = n_distinct(Participant)) %>%
   kable()
 ```
@@ -518,7 +534,7 @@ participants to male participants.
 
 ``` r
 exp4_d_subjGender$SubjGenderMale %<>% as.factor()
-contrasts(exp4_d_subjGender$SubjGenderMale) = cbind("NM_M"=c(-.5, .5)) 
+contrasts(exp4_d_subjGender$SubjGenderMale) <- cbind("NM_M" = c(-.5, .5))
 contrasts(exp4_d_subjGender$SubjGenderMale)
 ```
 
@@ -535,9 +551,10 @@ to *male* or *other* responses.
 
 ``` r
 exp4_m_subjGender <- glmer(
-  Female ~ Condition * GenderRatingCentered * SubjGenderMale + 
-           (1|Participant) + (1|Item), 
-  data = exp4_d_subjGender, family = binomial)
+  Female ~ Condition * GenderRatingCentered * SubjGenderMale +
+    (1 | Participant) + (1 | Item),
+  data = exp4_d_subjGender, family = binomial
+)
 summary(exp4_m_subjGender)
 ```
 
@@ -643,8 +660,9 @@ exp4_d %<>% mutate(GenderRating4 = GenderRating - 4)
 
 ``` r
 exp4_m_recenter <- glmer(
-  Female ~ Condition * GenderRating4 + (1|Participant) + (1|Item), 
-  data = exp4_d, family = binomial)
+  Female ~ Condition * GenderRating4 + (1 | Participant) + (1 | Item),
+  data = exp4_d, family = binomial
+)
 summary(exp4_m_recenter)
 ```
 

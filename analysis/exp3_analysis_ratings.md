@@ -1,6 +1,6 @@
 Experiment 3: Ratings Analysis
 ================
-2023-02-24
+2023-03-26
 
 - <a href="#setup" id="toc-setup">Setup</a>
 - <a href="#likeability" id="toc-likeability">Likeability</a>
@@ -27,9 +27,11 @@ for more details.
 ``` r
 exp3_d <- read.csv("../data/exp3_data.csv", stringsAsFactors = TRUE) %>%
   rename("Participant" = "SubjID", "Item" = "Name") %>%
-  select(Participant, Condition, GenderRating, Item, 
-         He, She, Other,
-         Likeable, Accomplished, Important)
+  select(
+    Participant, Condition, GenderRating, Item,
+    He, She, Other,
+    Likeable, Accomplished, Important
+  )
 str(exp3_d)
 ```
 
@@ -50,8 +52,7 @@ most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
 ``` r
-exp3_d %<>% mutate(GenderRatingCentered =
-  scale(GenderRating, scale = FALSE))
+exp3_d %<>% mutate(GenderRatingCentered = scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions, now weighted to account for uneven
@@ -63,7 +64,8 @@ First vs Full.
 ``` r
 source("centerfactor.R")
 contrasts(exp3_d$Condition) <- centerfactor(
-  exp3_d$Condition, c("last","first"))
+  exp3_d$Condition, c("last", "first")
+)
 contrasts(exp3_d$Condition)
 ```
 
@@ -77,15 +79,19 @@ L/A/I, to make interpreting models easier, then mean-center.
 
 ``` r
 exp3_d %<>% mutate(
-  LikeableFlip = recode(Likeable, 
-      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
+  LikeableFlip = recode(Likeable,
+    "1" = 7, "2" = 6, "3" = 5, "4" = 4, "5" = 3, "6" = 2, "7" = 1
+  ),
   AccomplishedFlip = recode(Accomplished,
-      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
+    "1" = 7, "2" = 6, "3" = 5, "4" = 4, "5" = 3, "6" = 2, "7" = 1
+  ),
   ImportantFlip = recode(Important,
-      '1' = 7, '2' = 6, '3' = 5, '4' = 4, '5' = 3, '6' = 2, '7' = 1),
+    "1" = 7, "2" = 6, "3" = 5, "4" = 4, "5" = 3, "6" = 2, "7" = 1
+  ),
   LikeableCentered = scale(LikeableFlip, scale = FALSE),
   AccomplishedCentered = scale(AccomplishedFlip, scale = FALSE),
-  ImportantCentered = scale(ImportantFlip, scale = FALSE))
+  ImportantCentered = scale(ImportantFlip, scale = FALSE)
+)
 str(exp3_d)
 ```
 
@@ -147,10 +153,11 @@ participant.
 
 ``` r
 exp3_m_like <- buildmer(
-  formula = She ~ Condition * GenderRatingCentered * 
-            LikeableCentered + (1|Participant) + (1|Item),
-  data = exp3_d, family = binomial, 
-  buildmerControl(direction = "order", quiet = TRUE))
+  formula = She ~ Condition * GenderRatingCentered *
+    LikeableCentered + (1 | Participant) + (1 | Item),
+  data = exp3_d, family = binomial,
+  buildmerControl(direction = "order", quiet = TRUE)
+)
 
 summary(exp3_m_like)
 ```
@@ -266,10 +273,11 @@ participant.
 
 ``` r
 exp3_m_acc <- buildmer(
-  formula = She ~ Condition * GenderRatingCentered * 
-            AccomplishedCentered + (1|Participant) + (1|Item),
-  data = exp3_d, family = binomial, 
-  buildmerControl(direction = "order", quiet = TRUE))
+  formula = She ~ Condition * GenderRatingCentered *
+    AccomplishedCentered + (1 | Participant) + (1 | Item),
+  data = exp3_d, family = binomial,
+  buildmerControl(direction = "order", quiet = TRUE)
+)
 
 summary(exp3_m_acc)
 ```
@@ -403,10 +411,11 @@ participant.
 
 ``` r
 exp3_m_imp <- buildmer(
-  formula = She ~ Condition * GenderRatingCentered * 
-            ImportantCentered + (1|Participant) + (1|Item),
-  data = exp3_d, family = binomial, 
-  buildmerControl(direction = "order", quiet = TRUE))
+  formula = She ~ Condition * GenderRatingCentered *
+    ImportantCentered + (1 | Participant) + (1 | Item),
+  data = exp3_d, family = binomial,
+  buildmerControl(direction = "order", quiet = TRUE)
+)
 
 summary(exp3_m_imp)
 ```
@@ -509,12 +518,13 @@ summary(exp3_m_imp)
 
 ``` r
 exp3_m_ratings <- buildmer(
-  formula = She ~ Condition * GenderRatingCentered * LikeableCentered * 
-            AccomplishedCentered * ImportantCentered +
-            (1|Participant) + (1|Item),
+  formula = She ~ Condition * GenderRatingCentered * LikeableCentered *
+    AccomplishedCentered * ImportantCentered +
+    (1 | Participant) + (1 | Item),
   data = exp3_d,
-  family = binomial, 
-  buildmerControl(direction = c("order", "backward"), quiet = TRUE))
+  family = binomial,
+  buildmerControl(direction = c("order", "backward"), quiet = TRUE)
+)
 
 summary(exp3_m_ratings)
 ```

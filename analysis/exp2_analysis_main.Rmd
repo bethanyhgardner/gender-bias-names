@@ -2,14 +2,14 @@
 title: 'Experiment 2: Main Analysis'
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
+  github_document:
     toc: yes
     toc_depth: 3
   html_document:
     toc: yes
     toc_depth: '3'
     df_print: paged
-  github_document:
+  pdf_document:
     toc: yes
     toc_depth: 3
 editor_options:
@@ -17,7 +17,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r include=FALSE}
+```{r setup, include=FALSE}
 library(tidyverse)
 options(dplyr.summarise.inform = FALSE)
 library(magrittr)
@@ -49,13 +49,15 @@ Variable names:
 Load data and select columns used in model. See data/exp2_data_about.txt
 for more details.
 
-```{r}
-exp2_d <- read.csv("../data/exp2_data.csv", 
+```{r load-data}
+exp2_d <- read.csv("../data/exp2_data.csv",
                    stringsAsFactors = TRUE) %>%
   rename("Participant" = "SubjID", "Item" = "NameShown") %>%
-  select(Participant, SubjGenderMale, 
-         Condition, GenderRating, 
-         Item, Male, Female, Other)
+  select(
+    Participant, SubjGenderMale,
+    Condition, GenderRating,
+    Item, Male, Female, Other
+  )
 str(exp2_d)
 ```
 
@@ -63,27 +65,29 @@ Center gender rating for names: Original scale from 1 to 7, with 1 as
 most masculine and 7 as most feminine. Mean-centered with higher still
 as more feminine.
 
-```{r}
-exp2_d %<>% mutate(GenderRatingCentered = 
-            scale(GenderRating, scale = FALSE))
+```{r center-gender-rating}
+exp2_d %<>% mutate(GenderRatingCentered = scale(GenderRating, scale = FALSE))
 ```
 
 Set contrasts for name conditions.
 
-```{r}
-contrasts(exp2_d$Condition) = cbind(
-  "last vs first/full" = c(.33, .33, -0.66), 
-  "first vs full"      = c(-.5, .5,  0))
+```{r contrast-coding}
+contrasts(exp2_d$Condition) <- cbind(
+  "last vs first/full" = c(.33, .33, -0.66),
+  "first vs full"      = c(-.5, .5, 0)
+)
 contrasts(exp2_d$Condition)
 ```
 
 Subset for gender rating effects (First and Full conditions only).
 
-```{r}
-exp2_d_FF <- exp2_d %>% filter(Condition != "last") 
+```{r subset-FF}
+exp2_d_FF <- exp2_d %>% filter(Condition != "last")
 exp2_d_FF$Condition %<>% droplevels()
-contrasts(exp2_d_FF$Condition) =cbind(
-  "first vs full" = c(-.5, .5)) #add contrast back
+
+contrasts(exp2_d_FF$Condition) <- cbind(
+  "first vs full" = c(-.5, .5)
+) # add contrast back
 contrasts(exp2_d_FF$Condition)
 ```
 
@@ -91,19 +95,24 @@ contrasts(exp2_d_FF$Condition)
 
 Responses by condition.
 
-```{r}
+```{r count-responses}
 exp2_d %<>% mutate(ResponseAll = case_when(
   Male   == 1 ~ "Male",
-  Female == 1 ~ "Female", 
-  Other  == 1 ~ "Other"))
+  Female == 1 ~ "Female",
+  Other  == 1 ~ "Other"
+))
 
-exp2_d_count <- exp2_d %>% 
+exp2_d_count <- exp2_d %>%
   group_by(Condition, ResponseAll) %>%
   summarise(n = n()) %>%
-  pivot_wider(names_from  = ResponseAll,
-              values_from = n) %>%
-  mutate(Female_MaleOther = Female / (Male+Other),
-         Female_Male = Female / Male)
+  pivot_wider(
+    names_from = ResponseAll,
+    values_from = n
+  ) %>%
+  mutate(
+    Female_MaleOther = Female / (Male + Other),
+    Female_Male = Female / Male
+  )
 
 kable(exp2_d_count, digits = 3)
 ```
@@ -121,10 +130,11 @@ defined as the unique first, last and first + last name combinations.
 Because the condition manipulations were fully between-subject and
 between-item, fitting a random slope model was not possible.
 
-```{r}
+```{r model-condition}
 exp2_m_cond <- glmer(
-  Female ~ Condition + (1|Participant) + (1|Item), 
-  data = exp2_d, family = binomial)
+  Female ~ Condition + (1 | Participant) + (1 | Item),
+  data = exp2_d, family = binomial
+)
 summary(exp2_m_cond)
 ```
 
@@ -135,7 +145,7 @@ summary(exp2_m_cond)
 
 ## Odds Ratios: Intercept
 
-```{r}
+```{r OR-intercept}
 exp(get_intercept(exp2_m_cond))
 exp(-get_intercept(exp2_m_cond))
 ```
@@ -145,10 +155,12 @@ recall as male/other overall), p\<.001
 
 ## Odds Ratios: Last vs First+Full
 
-```{r}
-exp2_m_cond %>% tidy() %>%
+```{r OR-L-FF}
+exp2_m_cond %>%
+  tidy() %>%
   filter(term == "Conditionlast vs first/full") %>%
-  pull(estimate) %>% exp()
+  pull(estimate) %>%
+  exp()
 ```
 
 7.39x more likely to recall as female in First + Full compared to Last
@@ -160,22 +172,24 @@ p\<.001
 Dummy code with Last Name as 0, so that intercept is the Last Name
 condition only.
 
-```{r}
+```{r dummy-code-L}
 exp2_d %<>% mutate(Condition_Last = case_when(
   Condition == "first" ~ 1,
   Condition == "full"  ~ 1,
-  Condition == "last"  ~ 0))
+  Condition == "last"  ~ 0
+))
 exp2_d$Condition_Last %<>% as.factor()
 ```
 
-```{r}
+```{r model-L}
 exp2_m_L <- glmer(
-  Female ~ Condition_Last + (1|Participant) + (1|Item), 
-  data = exp2_d, family = binomial)
+  Female ~ Condition_Last + (1 | Participant) + (1 | Item),
+  data = exp2_d, family = binomial
+)
 summary(exp2_m_L)
 ```
 
-```{r}
+```{r OR-L}
 exp(get_intercept(exp2_m_L))
 exp(-get_intercept(exp2_m_L))
 ```
@@ -189,22 +203,24 @@ p\<.001
 Dummy code with First and Full Name as 0, so that intercept is average
 for these two conditions.
 
-```{r}
+```{r dummy-code-FF}
 exp2_d %<>% mutate(Condition_FF = case_when(
   Condition == "first" ~ 0,
   Condition == "full"  ~ 0,
-  Condition == "last"  ~ 1))
+  Condition == "last"  ~ 1
+))
 exp2_d$Condition_FF %<>% as.factor()
 ```
 
-```{r}
+```{r model-FF}
 exp2_m_FF <- glmer(
-  Female ~ Condition_FF + (1|Participant) + (1|Item), 
-  data = exp2_d, family = binomial)
+  Female ~ Condition_FF + (1 | Participant) + (1 | Item),
+  data = exp2_d, family = binomial
+)
 summary(exp2_m_FF)
 ```
 
-```{r}
+```{r OR-FF}
 exp(get_intercept(exp2_m_FF))
 exp(-get_intercept(exp2_m_FF))
 ```
@@ -222,10 +238,11 @@ Experiment 2, the Last Name condition does not include any instances of
 the gendered first name, so it is not included here. Participant and
 Item are again included as random intercepts.
 
-```{r}
+```{r model-gender-rating}
 exp2_m_nameGender <- glmer(
-  Female ~ Condition * GenderRatingCentered + (1|Participant) + (1|Item), 
-  data = exp2_d_FF, family = binomial)
+  Female ~ Condition * GenderRatingCentered + (1 | Participant) + (1 | Item),
+  data = exp2_d_FF, family = binomial
+)
 summary(exp2_m_nameGender)
 ```
 

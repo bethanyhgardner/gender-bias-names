@@ -1,6 +1,6 @@
 Norming Data
 ================
-2023-02-07
+2023-03-30
 
 For the norming study, 51 participants on MTurk rated 92 first names on
 a scale from 1 being “very masculine” to 7 being “very feminine.” The
@@ -20,22 +20,27 @@ least one-third of the time to AMAB children.
 > <https://github.com/fivethirtyeight/data/tree/master/unisex-names>
 
 ``` r
-all_ratings <- read.csv("../data/exp0_data_norming.csv", 
-                        stringsAsFactors=TRUE) %>%
- select(-gender) %>%
-#pivot to have one row per name, not one column per name
-   pivot_longer(cols = c(-ResponseId),
-                names_to = "Name",
-                values_to = "GenderRating") 
+all_ratings <- read.csv("../data/exp0_data_norming.csv",
+                        stringsAsFactors = TRUE) %>%
+  select(-gender) %>%
+  # pivot to have one row per name, not one column per name
+  pivot_longer(
+    cols      = c(-ResponseId),
+    names_to  = "Name",
+    values_to = "GenderRating"
+  )
 ```
 
 Mean and SD of gender ratings for each name, sorted from most feminine
 to most masculine.
 
 ``` r
-mean_ratings <- all_ratings %>% group_by(Name) %>%
-  summarise(MeanGenderRating=mean(GenderRating),
-            SD=sd(GenderRating)) %>%
+mean_ratings <- all_ratings %>%
+  group_by(Name) %>%
+  summarise(
+    MeanGenderRating = mean(GenderRating),
+    SD = sd(GenderRating)
+  ) %>%
   arrange(desc(MeanGenderRating))
 
 kable(mean_ratings)
@@ -140,11 +145,18 @@ Selected 21 names from these results, with 3 names around each of the 7
 intervals.
 
 ``` r
-names_used <- mean_ratings %>% filter(str_detect(Name, 
-  "Matthew|Brian|James|Chris|Tommie|Emerson|Stevie|Quinn|Reese|Taylor|Riley|Jessie|Kerry|Blair|Jackie|Jody|Elisha|Ashley|Mary|Rebecca|Emily")) %>%
-  filter(Name!="Christopher")
+names_used <- mean_ratings %>%
+  filter(str_detect(
+    Name,
+    paste(sep = "", 
+      "Matthew|Brian|James|Chris|Tommie|Emerson|Stevie|Quinn|Reese|",
+      "Taylor|Riley|Jessie|Kerry|Blair|Jackie|Jody|Elisha|Ashley|Mary|",
+      "Rebecca|Emily"
+    )
+  )) %>%
+  filter(Name != "Christopher")
 
-kable(names_used, digits=2)
+kable(names_used, digits = 2)
 ```
 
 | Name    | MeanGenderRating |   SD |
@@ -182,7 +194,7 @@ birth.
 ``` r
 census <- read.csv("../data/exp0_data_census.csv")
 
-names_used <- left_join(names_used, census, by="Name")
+names_used <- left_join(names_used, census, by = "Name")
 ```
 
 Calculate the correlation:
@@ -210,28 +222,5 @@ involve the norming data over-estimating the masculinity of a name.
 
 And visualize it:
 
-``` r
-plot_correlation <- ggplot(names_used,
-  aes(x = MeanGenderRating, y = Census_ProbFemale,
-      color = Name, label = Name)) +
-  geom_point(size = 2.5) +
-  geom_text_repel(min.segment.length = 2, force = 5) +
-  annotate(geom = "text", label = "italic(r) == 0.92", parse = TRUE,
-           x = 6, y = 0.20, size = 5) +
-  scale_x_continuous(n.breaks = 7) +
-  scale_color_manual(values = pals::ocean.phase(21)) +
-  guides(color = guide_none()) +
-  theme_classic() +
-  theme(text = element_text(size = 16)) +
-  labs(title = "Norming Study", 
-       x = "Very Masculine – Very Feminine", 
-       y = "Proportion AFAB in Census Data")
-plot_correlation
-```
-
-![](exp0_analysis_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-
-``` r
-ggsave(plot_correlation, path = "../plots", filename = "norming-names.png",
-       width = 5, height = 5, units = "in", device = "png")
-```
+![Correlations between birth certificate data and norming
+study.](../plots/norming-names.png)
