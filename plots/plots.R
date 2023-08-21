@@ -370,6 +370,50 @@ all_p_withOther <- ggplot(all_odds,
   )
 all_p_withOther
 
+# Supplementary----
+
+## Norming study----
+p_norming <- read.csv("data/exp0_data_norming.csv",
+                      stringsAsFactors = TRUE) %>%
+  select(-gender) %>%
+  pivot_longer(  # pivot to have one row per name, not one column per name
+    cols      = c(-ResponseId),
+    names_to  = "Name",
+    values_to = "GenderRating"
+  ) %>%  # names used in study
+  filter(str_detect(Name, paste(sep = "",
+    "Matthew|Brian|James|Chris|Tommie|Emerson|Stevie|Quinn|Reese|",
+    "Taylor|Riley|Jessie|Kerry|Blair|Jackie|Jody|Elisha|Ashley|Mary|",
+    "Rebecca|Emily"
+  ))) %>%
+  filter(Name != "Christopher") %>%
+  group_by(Name) %>%  # get means for each name
+  summarise(MeanGenderRating = mean(GenderRating)) %>%
+  arrange(desc(MeanGenderRating)) %>%
+  left_join(read.csv("data/exp0_data_census.csv"),  # join census data
+            by = "Name") %>%
+  ggplot(aes(
+    x = MeanGenderRating,
+    y = Census_ProbFemale,
+    color = Name, label = Name
+  )) +
+  geom_point(size = 2.5) +
+  geom_text_repel(min.segment.length = 2, force = 5) +
+  annotate(
+    geom = "text", label = "italic(r) == 0.92", parse = TRUE,
+    x = 6, y = 0.20, size = 5
+  ) +
+  scale_color_manual(values = pals::ocean.phase(21)) +
+  scale_x_continuous(n.breaks = 7) +
+  guides(color = guide_none()) +
+  theme_classic() +
+  theme(text = element_text(size = 16)) +
+  labs(
+    title = "Norming Study",
+    x     = "Very Masculine – Very Feminine",
+    y     = "Proportion AFAB in Census Data"
+  )
+p_norming
 
 
 # Save----
@@ -393,6 +437,12 @@ ggsave(
   plot = exp4_p, path = "plots/",
   filename = "exp4_gender-rating-itemMeans.png",
   width = 8, height = 4, unit = "in", device = "png"
+)
+# Supplementary
+ggsave(
+  plot = p_norming, path = "plots/",
+  filename = "norming-names.png",
+  width = 5, height = 5, units = "in", device = "png"
 )
 ggsave(
   plot = all_p_oddsRatio, path = "plots/",
