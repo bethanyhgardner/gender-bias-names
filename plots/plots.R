@@ -415,6 +415,36 @@ p_norming <- read.csv("data/exp0_data_norming.csv",
   )
 p_norming
 
+## Types of other responses in Experiment 1----
+exp1_p_other <- read.csv("data/exp1_data.csv") %>%
+  filter(OtherType != "") %>%
+  select(Condition, SubjID, OtherType) %>%
+  mutate(across(c(Condition, OtherType), str_to_title)) %>%
+  ggplot(aes(x = OtherType, fill = OtherType)) +
+  geom_bar() +
+  facet_wrap(~Condition) +
+  scale_fill_brewer(palette = "Spectral") +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 175)) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 10),
+    axis.ticks.x = element_blank(),
+    axis.title = element_text(size = 11),
+    legend.text = element_text(size = 11),
+    legend.title = element_markdown(size = 11),
+    plot.title = element_markdown(size = 12, face = "bold"),
+    plot.title.position = "plot",
+    strip.text = element_text(size = 11)
+  ) +
+  labs(
+    title = "Experiment 1: Types of *Other* Responses",
+    x = "Response Type",
+    y = "Number of Responses",
+    fill = "*Other* Type"
+  ) +
+  guides(fill = guide_legend(byrow = TRUE))
+exp1_p_other
 
 # Save----
 # Main
@@ -443,6 +473,11 @@ ggsave(
   plot = p_norming, path = "plots/",
   filename = "norming-names.png",
   width = 5, height = 5, units = "in", device = "png"
+)
+ggsave(
+  plot = exp1_p_other, path = "plots/",
+  filename = "exp1_otherTypes.png",
+  width = 6.5, height = 3.25, unit = "in", device = "png"
 )
 ggsave(
   plot = all_p_oddsRatio, path = "plots/",
