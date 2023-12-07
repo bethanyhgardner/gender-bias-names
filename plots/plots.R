@@ -1,6 +1,6 @@
 library(tidyverse)
 library(magrittr)
-library(broom.mixed)  # Model  results
+library(broom.mixed)  # Model results
 library(insight)  # Model predictions
 library(ggtext)
 library(ggrepel)
@@ -51,13 +51,21 @@ exp1_p <- ggplot(exp1_d_long,
   scale_color_manual(values = c("grey70", "blue", "red")) +
   scale_fill_manual(values = c("grey70", "blue", "red")) +
   theme(
-    text = element_text(size = 16),
-    legend.margin = margin(l = -10)) +
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 11),
+    strip.text = element_text(size = 11),
+    legend.margin = margin(l = -10),
+    legend.text = element_text(size = 11),
+    legend.title = element_text(size = 11),
+    plot.title = element_text(size = 12, face = "bold"),
+    plot.title.position = "plot"
+  ) +
   labs(
     title = "Experiment 1: Pronoun Used by Name Condition",
-    x     = "Masculine - Feminine",
+    x     = "Masculine \u2013 Feminine",
     y     = "Prop Gendered Pronoun"
-  )
+  ) +
+  guides(color = guide_legend(byrow = TRUE))
 exp1_p
 
 # Experiment 2----
@@ -102,16 +110,23 @@ exp2_p <- ggplot(exp2_d_long,
   scale_color_manual(values = c("grey70", "blue", "red")) +
   scale_fill_manual(values = c("grey70", "blue", "red")) +
   theme(
-    text = element_text(size = 16),
-    legend.margin = margin(l = -10)
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 11),
+    strip.text = element_text(size = 11),
+    legend.margin = margin(l = -10),
+    legend.text = element_text(size = 11),
+    legend.title = element_text(size = 11),
+    plot.title = element_text(size = 12, face = "bold"),
+    plot.title.position = "plot"
   ) +
   labs(
     title = "Experiment 2: Gender Recalled by Name Condition",
-    x     = "Masculine - Feminine",
+    x     = "Masculine \u2013 Feminine",
     y     = "Prop Gender Recalled",
     color = "Gender \nRecalled",
     fill  = "Gender \nRecalled"
-  )
+  ) +
+  guides(color = guide_legend(byrow = TRUE))
 exp2_p
 
 # Experiment 3----
@@ -154,14 +169,21 @@ exp3_p <- ggplot(exp3_d_long,
   scale_color_manual(values = c("grey70", "blue", "red")) +
   scale_fill_manual(values = c("grey70", "blue", "red")) +
   theme(
-    text = element_text(size = 16),
-    legend.margin = margin(l = -10)
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 11),
+    strip.text = element_text(size = 11),
+    legend.margin = margin(l = -10),
+    legend.text = element_text(size = 11),
+    legend.title = element_text(size = 11),
+    plot.title = element_text(size = 12, face = "bold"),
+    plot.title.position = "plot"
   ) +
   labs(
     title = "Experiment 3: Pronoun Used by Name Condition",
-    x     = "Masculine - Feminine",
+    x     = "Masculine \u2013 Feminine",
     y     = "Prop Gendered Pronoun"
-  )
+  ) +
+  guides(color = guide_legend(byrow = TRUE))
 exp3_p
 
 # Experiment 4----
@@ -206,16 +228,23 @@ exp4_p <- ggplot(exp4_d_long,
   scale_color_manual(values = c("grey70", "blue", "red")) +
   scale_fill_manual(values = c("grey70", "blue", "red")) +
   theme(
-    text = element_text(size = 16),
-    legend.margin = margin(l = -10)
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 11),
+    strip.text = element_text(size = 11),
+    legend.margin = margin(l = -10),
+    legend.text = element_text(size = 11),
+    legend.title = element_text(size = 11),
+    plot.title = element_text(size = 12, face = "bold"),
+    plot.title.position = "plot"
   ) +
   labs(
     title = "Experiment 4: Gender Recalled by Name Condition",
-    x     = "Masculine - Feminine",
+    x     = "Masculine \u2013 Feminine",
     y     = "Prop Gender Recalled",
     color = "Gender \nRecalled",
     fill  = "Gender \nRecalled"
-  )
+  ) +
+  guides(color = guide_legend(byrow = TRUE))
 exp4_p
 
 # Odds ratios----
@@ -315,19 +344,20 @@ all_p_oddsRatio <- ggplot(
   guides(color = guide_none(), fill = guide_legend(byrow = TRUE)) +
   theme_classic() +
   theme(
-    text             = element_text(size = 16),
-    axis.text.y      = element_text(size = 16),
-    axis.ticks.y     = element_blank(),
-    legend.position  = c(0.80, 0.75),
+    axis.text.x = element_text(size = 10),
+    axis.text.y = element_text(size = 11),
+    axis.ticks.y  = element_blank(),
+    legend.position  = c(0.80, 0.70),
     legend.spacing.y = unit(10, "pt"),
-    legend.text      = element_text(size = 16),
-    panel.spacing.x  = unit(25, "pt"),
-    plot.title       = element_markdown(),
-    strip.text       = element_blank()
+    legend.text = element_text(size = 11),
+    panel.spacing.x = unit(25, "pt"),
+    plot.title = element_markdown(size = 12, face = "bold"),
+    strip.text = element_blank(),
+    plot.title.position = "plot"
   ) +
   labs(
     title = paste("Odds Ratio of a <i>She</i>/<i>Female</i> vs ",
-                  "<i>He</i>/<i>Male</i> or <i>Other</i><br>Response",
+                  "<i>He</i>/<i>Male</i> or <i>Other</i> Response",
                   "Across Experiments"),
     x     = "Odds Ratio",
     y     = element_blank(),
@@ -358,7 +388,7 @@ all_p_withOther <- ggplot(all_odds,
     legend.background = element_rect(fill = NA),
     legend.box.background = element_rect(fill = "grey90", color = "grey90"),
     legend.margin = margin(t = -8, b = 2, l = 5, r = 5),
-    legend.position = c(0.80, 0.75),
+    legend.position = c(0.80, 0.70),
     legend.spacing = unit(0, "pt"),
     plot.title = element_markdown(),
     plot.title.position = "plot"
@@ -398,19 +428,24 @@ p_norming <- read.csv("data/exp0_data_norming.csv",
     color = Name, label = Name
   )) +
   geom_point(size = 2.5) +
-  geom_text_repel(min.segment.length = 2, force = 5) +
+  geom_text_repel(min.segment.length = 0, force = 60) +
   annotate(
     geom = "text", label = "italic(r) == 0.92", parse = TRUE,
-    x = 6, y = 0.20, size = 5
+    x = 6, y = 0.20, size = 4
   ) +
   scale_color_manual(values = pals::ocean.phase(21)) +
   scale_x_continuous(n.breaks = 7) +
   guides(color = guide_none()) +
   theme_classic() +
-  theme(text = element_text(size = 16)) +
+  theme(
+    axis.text = element_text(size = 10),
+    axis.title = element_text(size = 11),
+    plot.title = element_text(size = 12, face = "bold"),
+    plot.title.position = "plot"
+  ) +
   labs(
     title = "Norming Study",
-    x     = "Very Masculine – Very Feminine",
+    x     = "Very Masculine \u2013 Very Feminine",
     y     = "Proportion AFAB in Census Data"
   )
 p_norming
@@ -451,22 +486,22 @@ exp1_p_other
 ggsave(
   plot = exp1_p, path = "plots/",
   filename = "exp1_gender-rating-itemMeans.png",
-  width = 8, height = 4, unit = "in", device = "png"
+  width = 6.5, height = 3.25, unit = "in", device = "png"
 )
 ggsave(
   plot = exp2_p, path = "plots/",
   filename = "exp2_gender-rating-itemMeans.png",
-  width = 8, height = 4, unit = "in", device = "png"
+  width = 6.5, height = 3.25, unit = "in", device = "png"
 )
 ggsave(
   plot = exp3_p, path = "plots/",
   filename = "exp3_gender-rating-itemMeans.png",
-  width = 8, height = 4, unit = "in", device = "png"
+  width = 6.5, height = 3.25, unit = "in", device = "png"
 )
 ggsave(
   plot = exp4_p, path = "plots/",
   filename = "exp4_gender-rating-itemMeans.png",
-  width = 8, height = 4, unit = "in", device = "png"
+  width = 6.5, height = 3.25, unit = "in", device = "png"
 )
 # Supplementary
 ggsave(
@@ -482,7 +517,7 @@ ggsave(
 ggsave(
   plot = all_p_oddsRatio, path = "plots/",
   filename = "all_oddsRatio.png",
-  width = 8, height = 4, unit = "in", device = "png"
+  width = 6.5, height = 3.25, unit = "in", device = "png"
 )
 # Extras
 ggsave(
