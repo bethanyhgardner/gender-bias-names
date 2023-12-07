@@ -1,4 +1,6 @@
 *.zip
+*.Rproj
+
 figures/*.pptx
 figures/*.pdf
 
