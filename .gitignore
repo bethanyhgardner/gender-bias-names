@@ -1,4 +1,6 @@
 *.zip
+figures/*.pptx
+figures/*.pdf
 
 # History files
 .Rhistory
