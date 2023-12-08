@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/525525815.svg)](https://zenodo.org/doi/10.5281/zenodo.10293754)
+
 Materials, de-identified data, and analyses for "Biased inferences about gender from names" (Bethany Gardner &amp; Sarah Brown-Schmidt, accepted at *Glossa Psycholinguistics*).
 
 ----------------
