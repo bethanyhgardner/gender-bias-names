@@ -45,7 +45,8 @@ exp1_p <- ggplot(exp1_d_long,
   theme_classic() +
   scale_x_continuous(
     limits = c(-3, 3), expand = c(0.02, 0.02),
-    breaks = c(-3, -2, -1, 0, 1, 2, 3)
+    breaks = c(-3, -2, -1, 0, 1, 2, 3),
+    labels = c("\u20133", "\u20132", "\u20131", "0", "1", "2", "3")
   ) +
   scale_y_continuous(expand = c(0, 0), n.breaks = 5) +
   scale_color_manual(values = c("grey70", "blue", "red")) +
@@ -104,7 +105,8 @@ exp2_p <- ggplot(exp2_d_long,
   theme_classic() +
   scale_x_continuous(
     limits = c(-3.1, 3), expand = c(0.02, 0.02),
-    breaks = c(-3, -2, -1, 0, 1, 2, 3)
+    breaks = c(-3, -2, -1, 0, 1, 2, 3),
+    labels = c("\u20133", "\u20132", "\u20131", "0", "1", "2", "3")
   ) +
   scale_y_continuous(expand = c(0, 0), limits = c(-0.05, 1), n.breaks = 5) +
   scale_color_manual(values = c("grey70", "blue", "red")) +
@@ -163,7 +165,8 @@ exp3_p <- ggplot(exp3_d_long,
   theme_classic() +
   scale_x_continuous(
     limits = c(-3.1, 3), expand = c(0.02, 0.02),
-    breaks = c(-3, -2, -1, 0, 1, 2, 3)
+    breaks = c(-3, -2, -1, 0, 1, 2, 3),
+    labels = c("\u20133", "\u20132", "\u20131", "0", "1", "2", "3")
   ) +
   scale_y_continuous(limits = c(-0.05, 1), expand = c(0, 0), n.breaks = 5) +
   scale_color_manual(values = c("grey70", "blue", "red")) +
@@ -222,7 +225,8 @@ exp4_p <- ggplot(exp4_d_long,
   theme_classic() +
   scale_x_continuous(
     limits = c(-3.1, 3), expand = c(0.02, 0.02),
-    breaks = c(-3, -2, -1, 0, 1, 2, 3)
+    breaks = c(-3, -2, -1, 0, 1, 2, 3),
+    labels = c("\u20133", "\u20132", "\u20131", "0", "1", "2", "3")
   ) +
   scale_y_continuous(limits = c(-0.05, 1), expand = c(0, 0), n.breaks = 5) +
   scale_color_manual(values = c("grey70", "blue", "red")) +
@@ -356,7 +360,7 @@ all_p_oddsRatio <- ggplot(
     plot.title.position = "plot"
   ) +
   labs(
-    title = paste("Odds Ratio of a <i>She</i>/<i>Female</i> vs ",
+    title = paste("Odds Ratio of a <i>She</i>/<i>Female</i> vs. ",
                   "<i>He</i>/<i>Male</i> or <i>Other</i> Response",
                   "Across Experiments"),
     x     = "Odds Ratio",
